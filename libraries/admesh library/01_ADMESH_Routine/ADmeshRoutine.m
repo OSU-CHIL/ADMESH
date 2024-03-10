@@ -165,9 +165,11 @@ end
 
 if app.DummyConstraint == -1
     [filepath,filename] = fileparts(app.FilePath);
-    filename = [filepath,'\',filename,'_updated_1d_hsize.mat'];
-    save(filename,'X','Y','h');
-    return;
+    filename = replace(filename,'_single','');
+    filename = replace(filename,'_bankline','');
+    filename = replace(filename,'_constraint','');
+    filename = [filepath,'\',filename,'_dummyconstraint_updated_1d_hsize.mat'];
+    load(filename,'X','Y','h');
 end
 
 end

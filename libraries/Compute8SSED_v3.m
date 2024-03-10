@@ -106,8 +106,8 @@ t(isnan(t)) = 0; % NaN occurs when duplicated points exist
 
 V = V1 + repmat(t,1,2).*V2;
 
-% XY1 = [Xq,Yq] + V1;
-% XY2 = [Xq,Yq] + V1 + V2;
+XY1 = [Xq,Yq] + V1;
+XY2 = [Xq,Yq] + V1 + V2;
 
 % Restore to original array size
 Vx = V(:,1); Vy = V(:,2);

@@ -16,10 +16,7 @@ h_min = h_min*UnitScale;
 x = PI.x(PI.p);
 y = PI.y(PI.p);
 
-x1 = PI.x(fixedPoints);
-y1 = PI.y(fixedPoints);
-
-id = ismember([x,y],[x1(:),y1(:)],'rows');
+id = ismember([x,y],fixedPoints,'rows');
 fixedPoints1D = PI.p(id);
     
 %--------------------------------------------------------------------------

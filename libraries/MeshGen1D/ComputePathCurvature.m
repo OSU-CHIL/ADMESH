@@ -88,7 +88,6 @@ if SmoothingRMSE >= 0
     Smooth_y(id_fixedPoints) = y0(id_fixedPoints);
     RMSE = sqrt( sum( (x0(:) - Smooth_x(:)).^2 + (y0(:) - Smooth_y(:)).^2)/length(x0));
     if RMSE < SmoothingRMSE
-        SmoothingParam = 1e-10;
         if strcmpi(WARN,'on')
         warning(['The input RMSE cannot be reached for this segment. ',...
             'Skip iteration and result straight line segment (smoothing param = 0).']);
