@@ -1,3 +1,4 @@
+function ExtractInternalConstraints(ShorelineFile)
 %% ========================================================================
 % Load datasets
 %==========================================================================
@@ -6,8 +7,7 @@ addpath(genpath('libraries'));
 %--------------------------------------------------------------------------
 % Load example file (variable "Points")
 %--------------------------------------------------------------------------
-ShorelineFile = 'examples\lower_neches\Shoreline_InBoundary.shp';
-Shoreline     = shaperead(ShorelineFile);
+Shoreline = shaperead(ShorelineFile);
 
 for i = 1 : length(Shoreline)
     Shoreline(i).np = length(Shoreline(i).X);
