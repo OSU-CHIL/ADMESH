@@ -18,7 +18,6 @@ end
 nBranch = zeros(nMask,1);
 BranchNodes = cell(nMask,1);
 
-wbar = waitbar(0);
 for i = 1 : length(MA.BranchNodes)
     id = MA.BranchNodes{i};
     [id1,id2] = ind2sub(size(Mask2DCell{1}),id);
@@ -51,12 +50,11 @@ for i = 1 : length(MA.BranchNodes)
     end
     end
       
-    waitbar(i/length(MA.BranchNodes),wbar);
+    fprintf('Find branch nodes in level 2 masks (%.2f%%)\n',i/length(MA.BranchNodes)*100);
 end
 % If no branch nodes in some masks, BranchNodes returns empty
 IB = find(cellfun(@(x) iscell(x),BranchNodes));
 BranchNodes = cellfun(@(x) vertcat(x{:}),BranchNodes(IB),'UniformOutput',0);
-delete(wbar);
 
 %% ========================================================================
 % Filling with maximal disk
@@ -72,8 +70,6 @@ for iMask = 1 : nMask
     
     [I,J] = find(Mask1DCell{iMask});
     
-    wbar = waitbar(0);
-    fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
     K = false(size(I));
     for i = 1 : size(BranchNodes{iMask},1)
         ii = BranchNodes{iMask}(i,1);
@@ -85,9 +81,8 @@ for iMask = 1 : nMask
         %     [~,d] = knnsearch([ii,jj],[I,J]);
         K(I1(d < d1)) = 1;
         %     K = sub2ind(size(L1D),I(iii),J(iii));
-        fwbar(i,size(BranchNodes{iMask},1));
+        fprintf('Filling with maximal disk (%d/%d)\n',i,size(BranchNodes{iMask},1));
     end
-    delete(wbar);
     M1DtoM2D = false(size(Mask2DCell{iMask}));
     ii = find(Mask1DCell{iMask});
     M1DtoM2D(ii(K)) = 1;
@@ -142,17 +137,14 @@ for iMask = 1 : nMask
     MA1D = sparse(I,J,K,size(Mask2D,1),size(Mask2D,2));
     
     CC = bwconncomp(full(Mask1D));
-    wbar = waitbar(0);
-    fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
     for i = 1 : CC.NumObjects
         id = CC.PixelIdxList{i};
         if ~any(MA1D(id))
             Mask2D(id) = 1;
             Mask1D(id) = 0;
         end
-        fwbar(i,CC.NumObjects);
+        fprintf('Remove 1D mask regions without MA points (%d/%d)\n',i,CC.NumObjects);
     end
-    delete(wbar);
     
     Mask2DCell{iMask} = Mask2D;
     Mask1DCell{iMask} = Mask1D;

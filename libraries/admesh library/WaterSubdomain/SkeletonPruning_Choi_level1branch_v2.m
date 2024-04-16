@@ -17,7 +17,6 @@ dy = dx;
 N = size(Vx,1);
 M = size(Vy,2);
 
-wbar = waitbar(0);
 while 1
     nBranch_pruned = 0;
     for i = 1 : length(BranchNodes)
@@ -112,7 +111,7 @@ while 1
     if isequal(BranchNodes,ID_pruned) && isempty(iBranch_pruned)
         break;
     end
-    waitbar(length(ID_pruned)/length(BranchNodes),wbar);
+    fprintf('Pruning MA branch (%.2f%%)\n',length(ID_pruned)/length(BranchNodes)*100);
     BranchNodes = ID_pruned;
     ID_pruned = [];
 %     XY = XY_pruned;
@@ -124,7 +123,6 @@ while 1
     
     iBranch_pruned = [];
 end
-delete(wbar);
 
 MA_pruned.Size = MA.Size;
 MA_pruned.BranchNodes = BranchNodes;

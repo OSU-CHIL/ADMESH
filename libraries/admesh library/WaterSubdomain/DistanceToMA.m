@@ -28,8 +28,6 @@ end
 id_MA = vertcat(MA.BranchNodes{:});
 [id_MA1,id_MA2] = ind2sub(MA.Size,id_MA);
 
-wbar = waitbar(0);
-fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
 D2MA = sparse(MA.Size(1),MA.Size(2));
 for iDD = 1 : size(dd_ID,1)
     I = dd_ID{iDD,1};
@@ -74,7 +72,6 @@ for iDD = 1 : size(dd_ID,1)
     
     D2MA(I,J) = D2MA1;
     
-    fwbar(iDD,size(dd_ID,1));
+    fprintf('Compute distance to MA (%d/%d)\n',iDD,size(dd_ID,1));
 end
-delete(wbar);
 

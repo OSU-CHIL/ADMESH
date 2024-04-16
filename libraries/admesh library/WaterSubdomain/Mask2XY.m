@@ -13,7 +13,6 @@ end
 k = 0;
 BoundaryID = {};
 NumBoundaryNodes = nnz(MaskBoundary);
-wbar = waitbar(0);
 while 1
     [I1,J1] = find(MaskBoundary);
     
@@ -59,11 +58,9 @@ while 1
 %     if isempty(I1)
 %         break;
 %     end
-    waitbar(1 - length(I1)/NumBoundaryNodes,wbar,...
-        sprintf('Mask to XY (%.2f)',1 - length(I1)/NumBoundaryNodes));
+    fprintf('Mask to XY (%.2f%%)\n',100*(1 - length(I1)/NumBoundaryNodes));
 end
 clear W2D_bw_boundary;
-delete(wbar);
 
 % figure; hold on;
 % for i = 1 : length(W2D_boundary)

@@ -7,7 +7,6 @@ JointConnectivity = MA.JointConnectivity;
 BranchXY = MA.BranchXY;
 BranchXY_smooth = cell(MA.nBranch,1);
 
-wbar = waitbar(0);
 for i = 1 : MA.nBranch
     xy = BranchXY{i};
     
@@ -57,9 +56,8 @@ for i = 1 : MA.nBranch
     Smooth_y(id_fixedPoints) = y(id_fixedPoints);
 
     BranchXY_smooth{i} = [Smooth_x(:),Smooth_y(:)];
-    waitbar(i/MA.nBranch,wbar);
+    fprintf('Smoothing MA (%.2f)\n',i/MA.nBranch);
 end
-delete(wbar);
 
 MA_smoothed = MA;
 MA_smoothed.BranchXY = BranchXY_smooth;

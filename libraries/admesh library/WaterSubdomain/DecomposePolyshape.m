@@ -19,7 +19,6 @@ yg = yg(:);
 k = 0;
 dd_pgons = polyshape;
 dd_Boxes = polyshape;
-wbar = waitbar(0);
 for i = 1 : Nx
     for j = 1 : Ny
         boxx = DDx([i i+1 i+1 i]);
@@ -41,10 +40,9 @@ for i = 1 : Nx
         end
         n1 = Nx*(i-1)+j;
         n2 = Nx*Ny;
-        waitbar(n1/n2,wbar,sprintf('Decomposing polyshape.. (%d/%d)',n1,n2));
+        fprintf('Decomposing polyshape.. (%d/%d)\n',n1,n2)
     end
 end
-delete(wbar);
 
 
 

@@ -6,8 +6,6 @@ Vy = sparse(length(yg),length(xg));
 Mask1 = false(length(yg),length(xg));
 Mask2 = false(length(yg),length(xg));
 
-wbar = waitbar(0);
-fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
 for iDD = 1 : size(dd_ID,1)
        
     x = xg(dd_ID{iDD,2});
@@ -111,7 +109,6 @@ for iDD = 1 : size(dd_ID,1)
     
 %     clear D Dg1 Vx Vy Vxg1 Vyg1 Vmag Vmag1 X Y;
 %     waitbar(iDD/length(dd_pgons),wbar);
-    fwbar(iDD,size(dd_ID,1));
+    fprintf('Computing VDT DDM (%d/%d)\n',iDD,size(dd_ID,1))
 end
 
-delete(wbar);

@@ -6,7 +6,6 @@ BranchNodesID = unique(BranchNodesID);
 I1 = Mask1D(BranchNodesID) | ~Mask2D(BranchNodesID);
 nBranch1D = 0;
 BranchNodes1D = [];
-wbar = waitbar(0);
 for i = 1 : length(MA.BranchNodes)
     id = MA.BranchNodes{i};
     
@@ -31,9 +30,8 @@ for i = 1 : length(MA.BranchNodes)
             end
         end
     end
-    waitbar(i/length(MA.BranchNodes),wbar);
+    fprintf('Construct MA 1D (%.2f%%)\n',i/length(MA.BranchNodes)*100);
 end
-delete(wbar);
 
 MA_1D = [];
 MA_1D.Size = MA.Size;

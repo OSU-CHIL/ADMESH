@@ -62,7 +62,6 @@ nBranch = 0;
 BranchNodes = [];
 JointConnectivity = [];
 XY = [];
-wbar = waitbar(0);
 for i = 1 : length(id_MA2)
     k = id_MA2(i);
     
@@ -173,9 +172,8 @@ for i = 1 : length(id_MA2)
         BranchNodes{nBranch} = k_connection;
         JointConnectivity(nBranch,:) = [k_connection(1),k_connection(end)];
     end
-    waitbar(i/length(id_MA2),wbar,sprintf('Constructing MA branch (%d/%d)',i,length(id_MA2)));
+    fprintf('Constructing MA branch (%d/%d)\n',i,length(id_MA2))
 end
-delete(wbar);
 
 %--------------------------------------------------------------------------
 % Remove redundant connectivity list

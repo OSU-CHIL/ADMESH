@@ -16,7 +16,6 @@ BranchNodeEnds = cellfun(@(x) [x(1) x(end)],MA.BranchNodes,'UniformOutput',0);
 BranchNodeEnds = cell2mat(BranchNodeEnds(:));
 
 FlagConnected2D = zeros(length(BranchNodes),1);
-wbar = waitbar(0);
 for i = 1 : length(BranchNodes)
     [x,y] = ind2sub(MA.Size,BranchNodes{i});
 
@@ -55,9 +54,8 @@ for i = 1 : length(BranchNodes)
     BranchNodes_connected{i} = inode;
     XY_connected{i} = [x,y];
     Length(i) = sum( sqrt((x(1:end-1) - x(2:end)).^2 + (y(1:end-1) - y(2:end)).^2));
-    waitbar(i/length(BranchNodes),wbar);
+    fprintf('Connect MA 1D to 2D area (%.2f%%)\n',i/length(BranchNodes)*100);
 end
-delete(wbar);
 
 n = max(cellfun(@(x) length(x),BranchNodes_connected));
 BranchNodes_connected1 = cellfun(@(x) [reshape(x(:),1,length(x)), zeros(1,n - length(x))],BranchNodes_connected,'UniformOutput',0);

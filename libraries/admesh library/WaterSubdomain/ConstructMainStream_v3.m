@@ -20,8 +20,6 @@ BranchNodeEnds = cell2mat(BranchNodeEnds(:));
 
 NodeEndList = unique(BranchNodeEnds(:));
 MergeID = zeros(length(NodeEndList),2);
-wbar = waitbar(0);
-fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
 for k = 1 : length(NodeEndList)
 %     if k < 1579
 %         continue;
@@ -130,9 +128,8 @@ for k = 1 : length(NodeEndList)
 
 
     
-    fwbar(k,length(NodeEndList));
+    fprintf('Construct main stream (%d/%d)\n',k,length(NodeEndList));
 end
-delete(wbar);
 
 MergeID1 = MergeID;
 BranchNodes1 = BranchNodes;
