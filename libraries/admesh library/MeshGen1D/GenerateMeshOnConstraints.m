@@ -30,6 +30,8 @@ for i = 1 : length(PI)
     Mesh1D(i) = MeshGeneration1D(PI(i),fixedPoints,Settings,h2,UnitScale);
     app.ProgressBarButton.Text = sprintf('Generating 1D mesh... (%d/%d)',i,length(PI)); drawnow;
 end
+[Mesh1D,Constraints] = PostMesh1D(Mesh1D,app.PTS.Constraints,app.MinElementSizeEditField.Value);
+app.PTS.Constraints = Constraints;
 
 %----------------------------------------------------------------------
 % Update constraints
@@ -38,10 +40,10 @@ end
 %----------------------------------------------------------------------
 PTS = app.PTS;
 IC = find([PTS.Constraints.num] < 0);
-if length(IC) ~= length(PI)
-    warndlg('Something is wrong.','Error');
-    return;
-end
+% if length(IC) ~= length(PI)
+%     warndlg('Something is wrong.','Error');
+%     return;
+% end
 
 n = length(IC);
 for i = 1 : length(Mesh1D)
