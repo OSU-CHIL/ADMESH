@@ -1,9 +1,7 @@
-function ExtractInternalConstraints(ShorelineFile)
-%% ========================================================================
-% Load datasets
-%==========================================================================
-clear all; clc; close all;
-addpath(genpath('libraries'));
+function [Constraints,pgon_old,MA_1D_mainstream,MA_1D_mainstreamLand,W2D_boundaryID] = ExtractInternalConstraints(ShorelineFile,A_min,dx,delta_cw,delta_lfs,delta_A,pruning_rho,pruning_theta,length_min,Nx,Ny)
+
+deg2m = deg2km(1)*1e3;
+Scale = deg2m;
 %--------------------------------------------------------------------------
 % Load example file (variable "Points")
 %--------------------------------------------------------------------------
@@ -16,8 +14,6 @@ end
 %% ========================================================================
 % Parameter setting
 %==========================================================================
-close all;
-
 %%========================================================================
 % Set boundary points from shorelines and set up parameters
 %==========================================================================
@@ -31,8 +27,7 @@ x = cellfun(@(x) x(~isnan(x)),x,'UniformOutput',0);
 y = cellfun(@(x) x(~isnan(x)),y,'UniformOutput',0);
 A = cellfun(@(x,y) polyarea(x,y),x,y,'UniformOutput',0);
 A = cell2mat(A);
-I = A > 2000/(deg2km(1)*1e3)^2;
-% I = A > 0;
+I = A > A_min;
 pgon = polyshape(x(I),y(I));
 pgon_removed = polyshape(x(~I),y(~I));
 
@@ -56,27 +51,10 @@ for i = 1 : length(I)-1
         XY_b{k1} = pgon.Vertices(J,:);
     end
 end
-% x_b = XY_b(:,1); y_b = XY_b(:,2);
-
-DEG2KM = 6378*pi/180;
-m2deg = km2deg(1e-3);
-% delta = 1e-5;
-dx = 1*m2deg; % resolution of background grid (convert meter to degree)
-hmin = 100*m2deg; % meter to degree
-hmax = 10*hmin;
-
-delta_cw = 100*m2deg; 
-delta_lfs = delta_cw/2;
-delta_Area = 1000*m2deg^2; % square meter to square degree (?) 
-delta_A = delta_Area/dx^2; % conversion to number of pixels
-pruning_rho = 4*delta_lfs;
-pruning_theta = pi*.9;
 
 %% ========================================================================
 % Decompose domain
 %==========================================================================
-Nx = 10;
-Ny = 10;
 [dd_pgons,dd_Boxes,dd_ID,xg,yg] = DecomposePolyshape(pgon,Nx,Ny,dx,delta_cw*4);
 
 %% ========================================================================
@@ -120,16 +98,14 @@ D2MA = DistanceToMA(MA,{MaskL,MaskW},dd_ID,dx);
 % Compute lfs
 %==========================================================================
 lfs = sparse(size(MaskW,1),size(MaskW,2));
-wbar = waitbar(0);
 for iDD = 1 : size(dd_ID,1)
     I = dd_ID{iDD,1};
     J = dd_ID{iDD,2};
   
     lfs(I,J) = sqrt(Vxg(I,J).^2 + Vyg(I,J).^2) + abs(D2MA(I,J));
     
-    waitbar(iDD/size(dd_ID,1),wbar,sprintf('Wairbar (%d/%d)',iDD,size(dd_ID,1)));
+    fprintf('Compute width function (%d/%d)\n',iDD,size(dd_ID,1));
 end
-delete(wbar);
 fprintf('Computing local feature size is done\n');
 clear Dg Vxg Vyg;
 % clear D2MA;
@@ -348,16 +324,14 @@ D2MA = DistanceToMA(MA,{MaskW},dd_ID,dx);
 % Compute lfs
 %==========================================================================
 lfs = sparse(size(MaskW,1),size(MaskW,2));
-wbar = waitbar(0);
 for iDD = 1 : size(dd_ID,1)
     I = dd_ID{iDD,1};
     J = dd_ID{iDD,2};
   
     lfs(I,J) = sqrt(Vxg(I,J).^2 + Vyg(I,J).^2) + abs(D2MA(I,J));
 
-    waitbar(iDD/size(dd_ID,1),wbar,sprintf('Wairbar (%d/%d)',iDD,size(dd_ID,1)));
+    fprintf('Compute lfs (%d/%d)',iDD,size(dd_ID,1));
 end
-delete(wbar);
 fprintf('Computing local feature size is done\n');
 clear Dg D2MA Vxg Vyg;
 
@@ -400,17 +374,14 @@ K = tempW2D(BranchNodesID);
 MA2D = sparse(I,J,K,size(tempW2D,1),size(tempW2D,2));
 
 CC = bwconncomp(full(tempW1D));
-wbar = waitbar(0);
-fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
 for i = 1 : CC.NumObjects
     id = CC.PixelIdxList{i};
     if ~any(MA1D(id))
         tempW2D(id) = 1;
         tempW1D(id) = 0;
     end
-    fwbar(i,CC.NumObjects);
+    fprintf('Fill 2D mask regions (%d/%d)',i,CC.NumObjects);
 end
-delete(wbar);
 
 %----------------------------------------------------------------------
 % Remove 2D mask not containing any MA points (it may need only when 
@@ -447,19 +418,17 @@ pgon_W2D = polyshape(temp_x,temp_y);
 %==========================================================================
 MA = MA_1D;
 MA_connected = ConnectMA1Dto2DArea_v2(MA,W2D_boundaryID,2);
-MA_connected = PruneLevel1BranchByLength(dx,MA_connected,100/(deg2km(1)*1e3),MA_connected.FlagConnected2D);
+MA_connected = PruneLevel1BranchByLength(dx,MA_connected,length_min,MA_connected.FlagConnected2D);
 MA_connected = RemoveJointDuplicates(MA_connected);
-% MA_connected = ConnectMA1Dto2DArea_v2(MA_connected,W2D_boundaryID,hmin/2/dx);
 
 MA = MA_LandBarrier;
 if ~isempty(MA_LandBarrier.BranchNodes)
 MA_connectedLand = ConnectMA1Dto2DArea_v2(MA,W2D_boundaryID,2);
-MA_connectedLand = PruneLevel1BranchByLength(dx,MA_connectedLand,100/(deg2km(1)*1e3),MA_connectedLand.FlagConnected2D);
+MA_connectedLand = PruneLevel1BranchByLength(dx,MA_connectedLand,length_min,MA_connectedLand.FlagConnected2D);
 MA_connectedLand = RemoveJointDuplicates(MA_connectedLand);
 else
     MA_connectedLand = MA_LandBarrier;
 end
-% MA_connectedLand = ConnectMA1Dto2DArea_v2(MA_connectedLand,W2D_boundaryID,hmin/2/dx);
 
 %% ========================================================================
 % Construct mainstreams
@@ -473,570 +442,24 @@ MA_1D_mainstreamLand = ConstructMainStream_v3(MA);
 MA_1D_mainstreamLand = RemoveJointDuplicates(MA_1D_mainstreamLand);
 
 %% ========================================================================
-% Construct projection maps for 1D domain and 2D boundary
+% Construct output constraints
 %==========================================================================
-Settings1D.h_min          = hmin;
-Settings1D.h_max          = hmax;
-Settings1D.h0             = 1*hmin;
-Settings1D.K              = 20;
-Settings1D.g              = 0.15;
-Settings1D.SmoothingRMSE = 5*km2deg(1e-3); % set negative value to disable smoothing
-
-I = [vertcat(MA_1D_mainstream.BranchNodes{:});
-    vertcat(MA_1D_mainstreamLand.BranchNodes{:})];
-% I =  vertcat(MA_LandBarrier.BranchNodes{:});
-[~,J] = unique(I);
-J = setdiff(1:length(I),J);
-I = I(J);
-[I,J] = ind2sub(MA_1D_mainstream.Size,I);
-fixedPoints1 = [xg(J),yg(I)];
-
-%----------------------------------------------------------------------
-% Add fixed points for junctions
-%----------------------------------------------------------------------
 f = @(x) ind2xy(x.BranchNodes,x.Size,xg,yg);
-MA_1D_mainstream.BranchXY = f(MA_1D_mainstream);
-MA_1D_mainstreamLand.BranchXY = f(MA_1D_mainstreamLand);
-W2D_boundary = sub2xy(W2D_boundaryID,xg,yg);
-
-POINTS = {MA_1D_mainstream.BranchXY;
-    MA_1D_mainstreamLand.BranchXY;
-    W2D_boundary};
-
-fixedPoints2 = [];
-nfixedP = 0;
-for i = 1 : 2
-    Points = POINTS{i};
-    for j = 1 : length(Points)
-        nfixedP = nfixedP + 1;
-        fixedPoints2(nfixedP,:) = [Points{j}(1,1),Points{j}(1,2)];
-        nfixedP = nfixedP + 1;
-        fixedPoints2(nfixedP,:) = [Points{j}(end,1),Points{j}(end,2)];
-    end
-end
-fixedPoints = unique([fixedPoints1; fixedPoints2],'rows');
-
-clear PI0;
-for j = 1 : length(POINTS)
-k = 0;
-wbar = waitbar(0);
-fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
-Points = POINTS{j};
-for i = 1 : length(Points)
-    x = Points{i}(:,1);
-    y = Points{i}(:,2);
-    
-    PI1 = ComputePathCurvature([x,y],fixedPoints,Settings1D.SmoothingRMSE,'Warning','Off');
-%     PI(i) = PI1;
-    if ~isempty(PI1)
-        k = k + 1;
-        PI0{j}(k) = PI1;
-    end
-    fwbar(i,length(Points));
-end
-delete(wbar);
-end
-
-figure; hold on; daspect([1 1 1]);
-C = {'b',mycolors('bn'),mycolors('dgn')};
-for j = 1 : length(PI0)
-    PI1 = PI0{j};
-    for i = 1 : length(PI1)
-        plot(PI1(i).x1(PI1(i).p),PI1(i).y1(PI1(i).p),'-o','color',C{j});
-    end
-end
-
-%% ========================================================================
-% Construct dummy constraints for ADMESH
-%==========================================================================
-Filename = 'libraries\test_files\test\simple_example';
-%----------------------------------------------------------------------
-% Setup projection to use
-%----------------------------------------------------------------------
-for j = 1 : length(PI0)
-    for i = 1 : length(PI0{j})
-        PI0{j}(i).x = PI0{j}(i).x1;
-        PI0{j}(i).y = PI0{j}(i).y1;
-    end
-end
-
-%----------------------------------------------------------------------
-% Setup ADMESH input
-%----------------------------------------------------------------------
-PTS = [];
-
-xl = min(pgon.Vertices(:,1)) - Settings1D.h_min;
-xr = max(pgon.Vertices(:,1)) + Settings1D.h_min;
-yl = min(pgon.Vertices(:,2)) - Settings1D.h_min;
-yr = max(pgon.Vertices(:,2)) + Settings1D.h_min;
-external_boundary = {[xl, yl; xr, yl; xr, yr; xl, yr; xl, yl]};
-for i = 1 : length(external_boundary)
-    PTS.Poly(i).x = external_boundary{i}(:,1);
-    PTS.Poly(i).y = external_boundary{i}(:,2);
-end
+ConstraintsCell{1} = f(MA_1D_mainstream);
+ConstraintsCell{2} = f(MA_1D_mainstreamLand);
+ConstraintsCell{3} = sub2xy(W2D_boundaryID,xg,yg);
 
 k = 0;
-for j = 1 : length(PI0)
-    PI = PI0{j};
-    for i = 1 : length(PI)
-        p = PI(i).p;
-        x1 = PI(i).x(p);
-        y1 = PI(i).y(p);
-        k1 = PI(i).k(p);
-        
+ConstraintNum = -[18 17 19];
+Constraints = [];
+for i = 1 : length(ConstraintsCell)
+    for j = 1 : length(ConstraintsCell{i})
         k = k + 1;
-        PTS.Constraints(k).num = 18;
-        PTS.Constraints(k).xy = [x1,y1];
-        PTS.Constraints(k).type = 'line';
-        PTS.Constraints(k).data = [];
-        PTS.Constraints(k).Kappa = k1;
+        Constraints(k).num = ConstraintNum(i);
+        Constraints(k).xy = ConstraintsCell{i}{j};
+        Constraints(k).type = 'line';
     end
 end
-
-Settings = [];
-Settings.Res = 'Low';
-Settings.hmax = Settings1D.h_max;
-Settings.hmin = Settings1D.h_min;
-Settings.K.Status = 'on';
-Settings.K.Value = Settings1D.K;
-
-Settings.G.Status = 'on';
-Settings.G.Value = Settings1D.g/sqrt(1);
-Settings.View.Status = 'on';
-
-Settings.R.Status = 'off';
-Settings.B.Status = 'off';
-Settings.T.Status = 'off';
-Settings.DummyConstraint = 1;
-
-DummyConstFile = [Filename,'_dummyconstraint'];
-folder = fileparts(DummyConstFile);
-if ~exist(folder,'dir')
-    mkdir(folder);
-end
-save(DummyConstFile,'PTS','Settings');
-
-
-%% ========================================================================
-% Mesh generation 1D with updated mesh size
-%==========================================================================
-% Points = MA.XY(52);
-
-OverwriteFile = [Filename,'_dummyconstraint_updated_1d_hsize'];
-
-load(OverwriteFile,'X','Y','h');
-figure; hold on; daspect([1 1 1]);
-for i = 1 : length(PI0)
-    PI = PI0{i};
-    if isempty(PI)
-        continue;
-    end
-temp = struct2table(PI,'AsArray',1);
-temp = table2struct(temp,'ToScalar',1);
-temp_x = cellfun(@(x,y) [x(y);nan],temp.x,temp.p,'UniformOutput',0);
-temp_y = cellfun(@(x,y) [x(y);nan],temp.y,temp.p,'UniformOutput',0);
-temp_x = vertcat(temp_x{:});
-temp_y = vertcat(temp_y{:});
-temp_h = interp2(X,Y,h,temp_x,temp_y);
-myPlot3(temp_x,temp_y,temp_h);
-end
-
-
-%----------------------------------------------------------------------
-% Add fixed points for junctions
-%----------------------------------------------------------------------
-fixedPoints = [];
-nfixedP = 0;
-for i = 1 : length(PI0)
-    PI = PI0{i};
-    for j = 1 : length(PI)
-        nfixedP = nfixedP + 1;
-        x = PI(j).x1(PI(j).p);
-        y = PI(j).y1(PI(j).p);
-        k = PI(j).k(PI(j).p);
-        fixedPoints(nfixedP,:) = [x(1), y(1)];
-        fixedPointsK(nfixedP) = k(1);
-        nfixedP = nfixedP + 1;
-        fixedPoints(nfixedP,:) = [x(end), y(end)];
-        fixedPointsK(nfixedP) = k(end);
-    end
-end
-
-clear Mesh1D0;
-
-wbar = waitbar(0);
-fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Wairbar (%d/%d)',x,y));
-for j = 1 : length(PI0)
-    PI1 = PI0{j};
-    for i = 1 : length(PI1)
-        x = PI1(i).x1(PI1(i).p);
-        y = PI1(i).y1(PI1(i).p);
-        
-        id = ismember([x,y],fixedPoints,'rows');
-        fixedPoints1D = PI1(i).p(id);
-        
-        %----------------------------------------------------------------------
-        % Generate 1D mesh
-        %----------------------------------------------------------------------
-        mesh1d = MeshGeneration1D(PI1(i),fixedPoints1D,Settings1D,OverwriteFile);
-        Mesh1D0{j}(i) = mesh1d;
-        fwbar(i,length(PI1));
-    end
-end
-delete(wbar);
-
-
-figure; hold on; axis equal;
-C = {'b','r','m'};
-for i = 1 : length(Mesh1D0)
-    PI1 = PI0{i};
-    if isempty(PI1)
-        continue;
-    end
-    temp = struct2table(PI1,'AsArray',1);
-    temp = table2struct(temp,'ToScalar',1);
-    temp_x = cellfun(@(x,y) [x(y);nan],temp.x,temp.p,'UniformOutput',0);
-    temp_y = cellfun(@(x,y) [x(y);nan],temp.y,temp.p,'UniformOutput',0);
-    temp_x = vertcat(temp_x{:});
-    temp_y = vertcat(temp_y{:});
-    plot(temp_x,temp_y,'k');
-    
-    Mesh1D1 = Mesh1D0{i};
-    temp = struct2table(Mesh1D1);
-    temp = table2struct(temp,'ToScalar',1);
-    temp_x = cellfun(@(x) [x;nan],temp.X,'UniformOutput',0);
-    temp_y = cellfun(@(x) [x;nan],temp.Y,'UniformOutput',0);
-    temp_x = vertcat(temp_x{:});
-    temp_y = vertcat(temp_y{:});
-    plot(temp_x,temp_y,'-o','color',C{i},'MarkerFaceColor',C{i},'MarkerSize',4);
-end
-% 
-figure; hold on; axis equal;
-Mesh1D1 = Mesh1D0{1};
-for i = 1 : length(Mesh1D1)
-    plot(Mesh1D1(i).X,Mesh1D1(i).Y,'-*');
-end
-% axis([-94.0173  -94.0006   30.0604   30.0735]);
-
-%% ========================================================================
-% Postprocess 0: Transfer shoreline constraints to internal boundaries if it is straightline
-%==========================================================================
-temp_Mesh1D = Mesh1D0;
-temp_Mesh1D = cellfun(@(x) x(:),temp_Mesh1D,'UniformOutput',0);
-Mesh1Dpost0 = [];
-
-Mesh1D1 = Mesh1D0{3};
-I = [];
-for i = 1 : length(Mesh1D1)
-    if isequal([Mesh1D1(i).X(1),Mesh1D1(i).Y(1)],[Mesh1D1(i).X(end),Mesh1D1(i).Y(end)])...
-        && length(unique([Mesh1D1(i).X,Mesh1D1(i).Y],'rows')) == 2
-        Mesh1D1(i).X = [];
-        Mesh1D1(i).Y = [];
-        I = [I;i];
-    end
-end
-
-Mesh1Dpost0 = temp_Mesh1D;
-Mesh1Dpost0{2} = [Mesh1Dpost0{2}; temp_Mesh1D{3}(I)];
-Mesh1Dpost0{3}(I) = [];
-%% ========================================================================
-% Postprocess 1: Merge 1D point clusters which have neighboring fixed 
-% points within hmin/2
-%==========================================================================
-temp_Mesh1D = Mesh1Dpost0;
-Mesh1Dpost1 = [];
-
-Points1D = [];
-for i = 1 : length(temp_Mesh1D)
-    Mesh1D1 = temp_Mesh1D{i};
-    if isempty(Mesh1D1)
-        continue;
-    end
-    Mesh1D1 = struct2table(Mesh1D1,'AsArray',1);
-    Points1D = [Points1D; vertcat(Mesh1D1.X{:}), vertcat(Mesh1D1.Y{:})];
-    
-%     temp_x = cellfun(@(x) x([1 end]),Mesh1D1.X,'UniformOutput',0);
-%     temp_y = cellfun(@(x) x([1 end]),Mesh1D1.Y,'UniformOutput',0);
-%     Points1D = [Points1D; vertcat(temp_x{:}), vertcat(temp_y{:})];
-end
-Points1D = unique(Points1D,'rows');
-
-[id,dist] = knnsearch(Points1D,Points1D,'k',5);
-id = id(:,2:end);
-dist = dist(:,2:end);
-id1 = [];
-for i = 1 : size(dist,1)
-    k = find(dist(i,:) < hmin/4 & dist(i,:) > 0,1,'last');
-    id1{i} = sort([i; id(i,1:k)']);
-end
-id1 = id1(:);
-I = cellfun(@(x) length(x) > 1,id1);
-id1 = id1(I);
-
-for i = 1 : length(id1)
-    for j = i+1 : length(id1)
-        if all(ismember(id1{j},id1{i}))
-            id1{j} = [];
-        end
-        if all(ismember(id1{i},id1{j}))
-            id1{i} = [];
-        end
-    end
-end
-I = cellfun(@(x) ~isempty(x),id1); 
-id1 = id1(I);
-
-for i = 1 : length(id1)
-    for j = i+1 : length(id1)
-        if any(ismember(id1{j},id1{i}))
-            error('Something is wrong.');
-        end
-    end
-end
-
-mfp = [];
-iMap = [];
-for i = 1 : length(id1)
-    mfp(i,:) = mean(Points1D(id1{i},:));
-    iMap = [iMap; i*ones(length(id1{i}),1)];
-end
-mfp(:,3) = 0;
-
-iFixedMerge = vertcat(id1{:});
-for j = 1 : length(temp_Mesh1D)
-    Mesh1D1 = temp_Mesh1D{j};
-    if isempty(Mesh1D1)
-        continue;
-    end
-    for i = 1 : length(Mesh1D1)
-        x = Mesh1D1(i).X;
-        y = Mesh1D1(i).Y;
-        K = Mesh1D1(i).K;
-        
-        [I,J] = ismember([x,y],Points1D(iFixedMerge,:),'rows');
-        
-%         k = false(length(x),1);
-%         k = [];
-        if any(I)
-            I = find(I);
-            J = nonzeros(J);
-            J = iMap(J);
-            
-            x(I) = mfp(J,1);
-            y(I) = mfp(J,2);
-            K(I) = mfp(J,3);
-%             k(I) = 1;
-            k1 = find(diff(I) == 1);
-            k2 = I(k1);
-            k = k2(J(k1) == J(k1+1));
-            x(k) = [];
-            y(k) = [];
-            K(k) = [];
-        end
-        Mesh1D1(i).X = x;
-        Mesh1D1(i).Y = y;
-        Mesh1D1(i).K = K;
-    end
-    
-    Mesh1D1 = struct2table(Mesh1D1,'AsArray',1);
-    I = cellfun(@(x) length(x),Mesh1D1.X) > 1;
-    Mesh1D1 = Mesh1D1(I,:);
-    Mesh1D1 = table2struct(Mesh1D1);
-    
-    Mesh1Dpost1{j} = Mesh1D1;
-end
-
-%% ========================================================================
-% Post-process 2: Remove 1D elements nodes with length smaller than hmin/2
-%==========================================================================
-temp_Mesh1D = Mesh1Dpost1;
-Mesh1Dpost2 = [];
-
-fixedPoints = [];
-nfixedP = 0;
-for i = 1 : length(temp_Mesh1D)
-    Mesh1D1 = temp_Mesh1D{i};
-    for j = 1 : length(Mesh1D1)
-        nfixedP = nfixedP + 1;
-        x = Mesh1D1(j).X;
-        y = Mesh1D1(j).Y;
-        k = Mesh1D1(j).K;
-        fixedPoints(nfixedP,:) = [x(1), y(1)];
-        fixedPointsK(nfixedP) = k(1);
-        nfixedP = nfixedP + 1;
-        fixedPoints(nfixedP,:) = [x(end), y(end)];
-        fixedPointsK(nfixedP) = k(end);
-    end
-end
-
-for j = 1 : length(temp_Mesh1D)
-    Mesh1D1 = temp_Mesh1D{j};
-    for i = 1 : length(Mesh1D1)
-        x = Mesh1D1(i).X;
-        y = Mesh1D1(i).Y;
-        k = Mesh1D1(i).K;
-        while 1
-            d = sqrt(diff(x).^2 + diff(y).^2);
-            I = find(d < hmin/2);
-            %         [~,I] = min(d);
-            %         if d(I) > hmin*10
-            %             break;
-            %         end
-            iFixed = find(ismember([x,y],fixedPoints,'rows'));
-            I = setdiff(I,iFixed);
-            if isempty(I)
-                break;
-            end
-            [~,J] = min(d(I));
-            I = I(J);
-            x(I(1)) = [];
-            y(I(1)) = [];
-            k(I(1)) = [];
-        end
-        Mesh1Dpost2{j}(i).X = x;
-        Mesh1Dpost2{j}(i).Y = y;
-        Mesh1Dpost2{j}(i).K = k;
-    end
-    
-end
-
-%% ========================================================================
-% Postprocess 3: Remove 1D constraints that completely included in shoreline constraints
-%==========================================================================
-temp_Mesh1D = Mesh1Dpost2;
-Mesh1Dpost3 = [];
-
-temp = temp_Mesh1D{3};
-temp = struct2table(temp);
-if iscell(temp)
-temp = [vertcat(temp.X{:}),vertcat(temp.Y{:})];
-else
-    temp = [temp.X,temp.Y];
-end
-
-for j = 1 : 2
-    Mesh1D1 = temp_Mesh1D{j};
-    if isempty(Mesh1D1)
-        continue;
-    end
-    for i = 1 : length(Mesh1D1)
-        x = Mesh1D1(i).X;
-        y = Mesh1D1(i).Y;
-        K = Mesh1D1(i).K;
-        
-        [~,dist] = knnsearch(temp,[x,y]);
-
-        if max(dist) < hmin/2
-            Mesh1D1(i).X = [];
-            Mesh1D1(i).Y = [];
-            Mesh1D1(i).K = [];
-        end
-    end
-    Mesh1D1 = struct2table(Mesh1D1);
-    if iscell(Mesh1D1.X)
-    I = cellfun(@(x) length(x),Mesh1D1.X) > 1;
-    Mesh1D1 = Mesh1D1(I,:);
-    Mesh1D1 = table2struct(Mesh1D1);
-    else
-        Mesh1D1 = table2struct(Mesh1D1,'ToScalar',1);
-    end
-    
-    Mesh1Dpost3{j} = Mesh1D1;
-end
-Mesh1Dpost3{3} = temp_Mesh1D{3};
-
-%%
-figure; hold on; axis equal;
-C = {'b',mycolors('bn'),mycolors('dgn')};
-% plot(pgon_W2D);
-for i = 1 : length(Mesh1Dpost3)
-    PI1 = PI0{i};
-    if isempty(PI1)
-        continue;
-    end
-    temp = struct2table(PI1,'AsArray',1);
-    temp = table2struct(temp,'ToScalar',1);
-    if iscell(temp.x)
-    temp_x = cellfun(@(x,y) [x(y);nan],temp.x,temp.p,'UniformOutput',0);
-    temp_y = cellfun(@(x,y) [x(y);nan],temp.y,temp.p,'UniformOutput',0);
-    temp_x = vertcat(temp_x{:});
-    temp_y = vertcat(temp_y{:});
-    else
-        temp_x = temp.x;
-        temp_y = temp.y;
-    end
-    
-    Mesh1D1 = Mesh1Dpost3{i};
-    temp = struct2table(Mesh1D1);
-    temp = table2struct(temp,'ToScalar',1);
-    if iscell(temp.X)
-    temp_x = cellfun(@(x) [x;nan],temp.X,'UniformOutput',0);
-    temp_y = cellfun(@(x) [x;nan],temp.Y,'UniformOutput',0);
-    temp_k = cellfun(@(x) [x;nan],temp.K,'UniformOutput',0);
-    temp_x = vertcat(temp_x{:});
-    temp_y = vertcat(temp_y{:});
-    temp_k = vertcat(temp_k{:});
-    else
-        temp_x = temp.X;
-        temp_y = temp.Y;
-        temp_k = temp.K;
-    end
-    plot(temp_x,temp_y,'-o','color',C{i},'MarkerFaceColor',C{i},'MarkerSize',4);
-end
-
-
-%% Write ADMESH input for single-line constraint (pass both 1D lines and 2D boundaries as constraints)
-temp_Mesh_write = Mesh1Dpost3;
-
-PTS = [];
-
-xl = min(pgon.Vertices(:,1)) - Settings1D.h_min;
-xr = max(pgon.Vertices(:,1)) + Settings1D.h_min;
-yl = min(pgon.Vertices(:,2)) - Settings1D.h_min;
-yr = max(pgon.Vertices(:,2)) + Settings1D.h_min;
-external_boundary = {[xl, yl; xr, yl; xr, yr; xl, yr; xl, yl]};
-
-for i = 1 : length(external_boundary)
-    PTS.Poly(i).x = external_boundary{i}(:,1);
-    PTS.Poly(i).y = external_boundary{i}(:,2);
-end
-
-k = 0;
-ConstraintNum = [18 17 19];
-for j = 1 : length(temp_Mesh_write)
-    Mesh1D1 = temp_Mesh_write{j};
-    for i = 1 : length(Mesh1D1)
-        k = k + 1;
-        PTS.Constraints(k).num = ConstraintNum(j);
-        PTS.Constraints(k).xy = [Mesh1D1(i).X,Mesh1D1(i).Y];
-        PTS.Constraints(k).type = 'line';
-        PTS.Constraints(k).data = [];
-        PTS.Constraints(k).Kappa = Mesh1D1(i).K;
-    end
-end
-
-
-Settings = [];
-Settings.Res = 'Low';
-Settings.hmax = Settings1D.h_max;
-Settings.hmin = Settings1D.h_min;
-Settings.K.Status = 'on';
-Settings.K.Value = Settings1D.K;
-
-Settings.G.Status = 'on';
-Settings.G.Value = Settings1D.g/sqrt(1);
-Settings.View.Status = 'on';
-
-Settings.R.Status = 'off';
-Settings.B.Status = 'off';
-Settings.T.Status = 'off';
-
-Settings.DummyConstraint = 0;
-
-ConstraintFilename = [Filename,'_single_constraint'];
-save(ConstraintFilename,'PTS','Settings','Settings1D');
-
-
 
 
 

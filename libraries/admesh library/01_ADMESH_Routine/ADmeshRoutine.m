@@ -152,39 +152,16 @@ h  = MeshSizeFunction(h0,D,hmax,hmin,g,delta,app.ProgressBarButton); clear h0
 % 2021-04-07 YK: save updated target mesh size to generate "second" 1D mesh
 %--------------------------------------------------------------------------
 if app.DummyConstraint == 0 % Break while loop if not dummy
+    
     break;
     
 elseif app.DummyConstraint == 1 % Repeat loop with updated constraints if dummay
     
     GenerateMeshOnConstraints(X,Y,h,Settings,app);
 
-elseif app.DummyConstraint == 2
-    GenerateMeshOnConstraints(X,Y,h,Settings,app);
-    return;
-end
-
-if app.DummyConstraint == -1
-    [filepath,filename] = fileparts(app.FilePath);
-    filename = replace(filename,'_single','');
-    filename = replace(filename,'_bankline','');
-    filename = replace(filename,'_constraint','');
-    filename = [filepath,'\',filename,'_dummyconstraint_updated_1d_hsize.mat'];
-    load(filename,'X','Y','h');
 end
 
 end
-% %--------------------------------------------------------------------------
-% % 2021-04-08 Younghun: added to apply magetic-like force to channels
-% %--------------------------------------------------------------------------
-% I = abs(D) <= 2*hmin;
-% fMag1 = @(p) repmat(interp2(X,Y,double(I),p(:,1),p(:,2)),1,2);
-% fD = @(p) interp2(X,Y,abs(D),p(:,1),p(:,2));
-% fgradDx = @(p) interp2(X,Y,gradD.x,p(:,1),p(:,2));
-% fgradDy = @(p) interp2(X,Y,gradD.y,p(:,1),p(:,2));
-% fMag = @(p) fMag1(p).*fD(p).*[fgradDx(p), fgradDy(p)]./sqrt(fgradDx(p).^2 + fgradDy(p).^2);
-% 
-% load('8ssed');
-% fMag = @(p) fMag1(p).*[fVx(p),fVy(p)];
 
 %--------------------------------------------------------------------------
 % Create an interpolant surface for the distance and mesh size function

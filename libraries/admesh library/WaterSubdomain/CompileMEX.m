@@ -11,7 +11,7 @@ end
 % Identify platform and set extension of mex file
 if ismac
     [~,result] = system('uname -m');
-    if strcmpi(result,'arm64')
+    if contains(result,'arm64')
         extension = '.mexmaca64';
     else
         extension = '.mexmaci64';
