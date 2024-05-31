@@ -52,7 +52,7 @@ function ADmeshRoutine(varargin)
 app = varargin{1};
 
 % Turn off colormap
-SetContourStatus(app,'off'); drawnow
+SetContourStatus(app,'Off'); drawnow
 
 Compute1DProjection(app);
 SetDummyConstraint(app);

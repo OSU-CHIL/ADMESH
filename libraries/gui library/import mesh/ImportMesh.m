@@ -45,7 +45,7 @@ else
 end
 
 % Turn off colormap
-SetContourStatus(app,'off');
+SetContourStatus(app,'Off');
 
 %------------------------------------------------------------------------------
 % Erase any sub meshing stuff

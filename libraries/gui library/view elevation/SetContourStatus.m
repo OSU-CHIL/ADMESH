@@ -8,6 +8,7 @@ function SetContourStatus(app,varargin)
 %--------------------------------------------------------------------------
 if length(varargin) == 1
     status = varargin{1};
+    app.ContoursDropDown.Value = status;
 else
     status = app.ContoursDropDown.Value;
 end
@@ -17,17 +18,23 @@ app.ViewAxes = app.UIAxes;
 % Check for data
 %--------------------------------------------------------------------------
 if ~strcmpi(status,'off')
-    if strcmpi(status,'bathy/topo') && isempty(app.xyzFun)
-        warndlg('No vertical elevation data are identified.'...
-            ,'Error');
-        app.ContoursDropDown.Value = 'Off';
-        return;
+    if strcmpi(status,'bathy/topo')
+
+        h1 = findobj(app.ViewAxes,'tag','Edge Structure');
+
+        if ~isempty(h1) && isempty(app.xyzFun)
+            warndlg('No vertical elevation data are identified.'...
+                ,'Error');
+            SetContourStatus(app,'Off');
+            return;
+        end
+        
     end
 
     if strcmpi(status,'Manning''s n') && ~isfield(app.MESH,'Attributes')
         warndlg('No Manning''n n value data are identified.'...
             ,'Error');
-        app.ContoursDropDown.Value = 'Off';
+        SetContourStatus(app,'Off');
         return;
     end
 end
@@ -50,16 +57,11 @@ switch lower(status)
         h2 = findobj(app.ViewAxes,'tag','Mesh');
         
         app.ProgressBarButton.Text = 'Setting colormap...';
-        
-        switch lower(status)
-            case 'bathy/topo'
-                Field = -app.xyzFun.Values;
-            case 'manning''s n'
-                
-        end
 
         if ishandle(h1) == 1 % Plot elevation nodes
             
+            Field = -app.xyzFun.Values;
+
             % Get colormap
             if strcmpi(cmap_name,'land & sea')
 
@@ -212,7 +214,7 @@ switch lower(status)
             
             trisurf(faces,verts(:,1),verts(:,2),Field,...
                 'Parent',app.ViewAxes,...
-                'Tag','Mesh',...
+                'Tag','Mesh Topo',...
                 'EdgeColor','none',...
                 'FaceColor','interp');
 
@@ -229,7 +231,7 @@ switch lower(status)
         
         % Are we displaying elevation nodes or triangulated elevation
         h1 = findobj(app.ViewAxes,'tag','Edge Structure');
-        h2 = findobj(app.ViewAxes,'tag','Mesh');
+        h2 = findobj(app.ViewAxes,'tag','Mesh Topo');
         
         if ishandle(h1) == 1
             
@@ -239,15 +241,7 @@ switch lower(status)
         elseif ishandle(h2) == 1
             
             delete(h2);
-
-            verts = app.MESH.Points;                        % vertices
-            faces = app.MESH.ConnectivityList;              % connectivity list
-            
-            trisurf(faces,verts(:,1),verts(:,2),zeros(length(verts),1),...
-                'Parent',app.ViewAxes,...
-                'Tag','Mesh',...
-                'EdgeColor',[0 .4 .8],...
-                'FaceColor','none');
+            PlotMesh(app,.1);
         end
 
         colorbar(app.ViewAxes,'off');
