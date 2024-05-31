@@ -2,12 +2,6 @@ function GenerateMeshOnConstraints(X,Y,h,Settings,app)
 
 app.ProgressBarButton.Text = 'Generating 1D mesh...';
 
-if strcmpi(app.CoordinateSystemDropDown.Value,'Projected (m)')
-    UnitScale = 1;
-elseif strcmpi(app.CoordinateSystemDropDown.Value,'Unprojected (decimal degree)')
-    UnitScale = km2deg(1e-3); % m2deg
-end
-
 %--------------------------------------------------------------------------
 % Set fixed points
 %--------------------------------------------------------------------------

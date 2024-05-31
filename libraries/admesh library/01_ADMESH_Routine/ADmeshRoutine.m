@@ -76,13 +76,6 @@ end
 % Save ADMESH settings for appending to file
 %--------------------------------------------------------------------------
 [Settings,AdvSettings] = SaveSettings(app);
-if strcmpi(app.CoordinateSystemDropDown.Value,'Projected (m)')
-    UnitScale = 1;
-elseif strcmpi(app.CoordinateSystemDropDown.Value,'Unprojected (decimal degree)')
-    UnitScale = km2deg(1e-3); % m2deg
-end
-hmax = hmax*UnitScale;
-hmin = hmin*UnitScale;
 
 %--------------------------------------------------------------------------
 % Begin ADmesh

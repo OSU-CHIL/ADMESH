@@ -10,12 +10,6 @@ end
 IC = find([PTS.Constraints.num] < 0);
 Points = {PTS.Constraints(IC).xy};
 SmoothingRMSE = app.SmoothingRMSEEditField.Value;
-if strcmpi(app.CoordinateSystemDropDown.Value,'Projected (m)')
-    UnitScale = 1;
-elseif strcmpi(app.CoordinateSystemDropDown.Value,'Unprojected (decimal degree)')
-    UnitScale = km2deg(1e-3); % deg2m
-end
-SmoothingRMSE = SmoothingRMSE*UnitScale;
 
 %----------------------------------------------------------------------
 % Add fixed points for junctions

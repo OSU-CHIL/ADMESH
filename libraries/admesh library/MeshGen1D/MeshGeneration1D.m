@@ -1,4 +1,4 @@
-function Mesh1D = MeshGeneration1D(PI,fixedPoints,Settings,h2d,UnitScale)
+function Mesh1D = MeshGeneration1D(PI,fixedPoints,Settings,h2d)
 %--------------------------------------------------------------------------
 % Get input parameters
 %--------------------------------------------------------------------------
@@ -6,9 +6,6 @@ h_min = Settings.hmin;
 h_max = Settings.hmax;
 K     = Settings.K.Value;
 g     = Settings.G.Value;
-
-h_max = h_max*UnitScale;
-h_min = h_min*UnitScale;
 
 %--------------------------------------------------------------------------
 % Loop over 1D projection map array
