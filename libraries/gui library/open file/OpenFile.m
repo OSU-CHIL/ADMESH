@@ -24,7 +24,6 @@ function OpenFile(varargin)
 %------------------------------------------------------------------------------
 % Get GUI data
 %------------------------------------------------------------------------------
-% gui = % guidata(varargin{1});
 app = varargin{1};
 
 %------------------------------------------------------------------------------
@@ -49,7 +48,7 @@ end
 [~,~,ext] = fileparts(filename);
 
 % Turn off colormap
-SetContourStatus(app,'off');
+SetContourStatus(app,'Off');
 
 switch ext
     
@@ -73,8 +72,15 @@ switch ext
         % Plot Boundary
         PlotEdgeStructure(app,.1);
         
-        
-    case '.14'
+        % Convert to cartesian coordinates if needed.
+        [app.PTS,status] = CoordinateConversion(app.PTS,'auto');
+        app.xyzFun = CoordinateConversion(app.xyzFun,'auto',app.PTS.cpplon,app.PTS.cpplat);
+
+        if status
+            PlotEdgeStructure(app,.1);
+        end
+
+    case {'.14','.grd'}
         
         % Reset domain variables
         app.FilePath   = [pathname filename];
@@ -82,35 +88,23 @@ switch ext
         app.xyzFun     = [];
         app.MESH       = [];
         
-        [app.MESH,app.xyzFun,status] = Read14File([pathname filename],app);
+        [app.MESH,~,status] = Read14File([pathname filename],app);
         
         if status == 0
             app.ProgressBarButton.Text = 'Ready.'; drawnow;
             errordlg('There was an error reading in the file.','ADMESH')
             return
         end
-                
+
         % Plot mesh
         PlotMesh(app,.1);
         
-    case '.grd'
-        
-        % Reset domain variables
-        app.FilePath   = [pathname filename];
-        app.PTS        = [];
-        app.xyzFun     = [];
-        app.MESH       = [];
-        
-        [app.MESH,app.xyzFun,status] = Read14File([pathname filename],app);
-        
-        if status == 0
-            app.ProgressBarButton.Text = 'Ready.'; drawnow;
-            errordlg('There was an error reading in the file.','ADMESH')
-            return
+        % Convert to cartesian coordinates if needed.
+        [app.MESH,status] = CoordinateConversion(app.MESH,'auto');
+
+        if status
+            PlotMesh(app,.1);
         end
-        
-        % Plot mesh
-        PlotMesh(app,.1);
 
     case '.2dm'
         
@@ -120,7 +114,7 @@ switch ext
         app.xyzFun     = [];
         app.MESH       = [];
         
-        [app.MESH,app.xyzFun,status] = Read2DM([pathname filename]);
+        [app.MESH,~,status] = Read_2DM([pathname filename]);
         
         if status == 0
             app.ProgressBarButton.Text = 'Ready.'; drawnow;
@@ -128,12 +122,15 @@ switch ext
             return
         end
 
+        % Convert to cartesian coordinates if needed.
+        app.MESH   = CoordinateConversion(app.MESH,'auto');
+
         app.ProgressBarButton.Text = 'Ready.'; drawnow;
         
     case '.shp'
         
         choice = questdlg(...
-            'Do you want to save settings?', ...
+            'Do you want to create a file to save settings?', ...
             'ADmesh', ...
             'Yes','No','Yes');
     
@@ -172,6 +169,14 @@ switch ext
         % Plot Boundary
         PlotEdgeStructure(app,.1);
         
+        % Convert to cartesian coordinates if needed.
+        [app.PTS,status] = CoordinateConversion(app.PTS,'auto');
+        app.xyzFun = CoordinateConversion(app.xyzFun,'auto',app.PTS.cpplon,app.PTS.cpplat);
+
+        if status
+            PlotEdgeStructure(app,.1);
+        end
+
 end
 
 end

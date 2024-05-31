@@ -19,18 +19,20 @@ R = 6378137; % Radius of the Earth
 
 if nargin == 1 % Convert PTS or MESH data structure
     
-    input = varargin{1}; % Assign input
+    input  = varargin{1}; % Assign input
+    cpplon = input.cpplon;
+    cpplat = input.cpplat;
 
-    if isfield(input,'Points') % Mesh structure input
+    if isfield(input,'Points') % MESH input
         
-        input.Points(:,1) = (input.cpplon + input.Points(:,1)./(R*cos(input.cpplat))).*180/pi;
+        input.Points(:,1) = (cpplon + input.Points(:,1)./(R*cos(cpplat))).*180/pi;
         input.Points(:,2) = (input.Points(:,2)./R).*(180/pi);
         
-    else % PTS structure input
+    elseif isfield(input,'Poly') % PTS structure input
         
         % Convert edge structure
         for i = 1:length(input.Poly)
-            input.Poly(i).x = (input.cpplon + input.Poly(i).x./(R*cos(input.cpplat))).*180/pi;
+            input.Poly(i).x = (cpplon + input.Poly(i).x./(R*cos(cpplat))).*180/pi;
             input.Poly(i).y = (input.Poly(i).y./R).*(180/pi);
             
         end
@@ -39,7 +41,7 @@ if nargin == 1 % Convert PTS or MESH data structure
         if isfield(input,'Constraints')
             
             for i = 1:length(input.Constraints)
-                input.Constraints(i).xy(:,1) = (input.cpplon + input.Constraints(i).xy(:,1)./(R*cos(input.cpplat))).*180/pi;
+                input.Constraints(i).xy(:,1) = (cpplon + input.Constraints(i).xy(:,1)./(R*cos(cpplat))).*180/pi;
                 input.Constraints(i).xy(:,2) = (input.Constraints(i).xy(:,2)./R).*(180/pi);
             end
             
@@ -49,15 +51,38 @@ if nargin == 1 % Convert PTS or MESH data structure
     
     varargout{1} = input;
     
-elseif nargin == 3 % Convert (x,y)
+elseif nargin == 3 % Convert xyzFun structure with cpplon/cpplat
     
-    [PTS,x,y] = deal(varargin{:});
+    input  = varargin{1}; % Assign input
+    cpplon = varargin{2};
+    cpplat = varargin{3};
+
+    if isfield(input,'Points') || isprop(input,'Points') % MESH or xyzFun input
+        
+        input.Points(:,1) = (cpplon + input.Points(:,1)./(R*cos(cpplat))).*180/pi;
+        input.Points(:,2) = (input.Points(:,2)./R).*(180/pi);
+        
+    elseif isfield(input,'Poly') % PTS structure input
+        
+        % Convert edge structure
+        for i = 1:length(input.Poly)
+            input.Poly(i).x = (cpplon + input.Poly(i).x./(R*cos(cpplat))).*180/pi;
+            input.Poly(i).y = (input.Poly(i).y./R).*(180/pi);
+            
+        end
+        
+        % Convert constraints
+        if isfield(input,'Constraints')
+            
+            for i = 1:length(input.Constraints)
+                input.Constraints(i).xy(:,1) = (cpplon + input.Constraints(i).xy(:,1)./(R*cos(cpplat))).*180/pi;
+                input.Constraints(i).xy(:,2) = (input.Constraints(i).xy(:,2)./R).*(180/pi);
+            end
+            
+        end
+        
+    end
     
-    % Convert points
-    lon = (PTS.cpplon + x./(R*cos(PTS.cpplat))).*180/pi;
-    lat = (y./R).*(180/pi);
-    
-    varargout{1} = lon;
-    varargout{2} = lat;
+    varargout{1} = input;
     
 end

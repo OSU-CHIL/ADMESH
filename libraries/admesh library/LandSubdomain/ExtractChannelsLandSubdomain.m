@@ -63,6 +63,10 @@ end
 
 BP = [app.PTS.Poly.x(:), app.PTS.Poly.y(:)];
 [sx,sy] = STREAMobj2XY(FL1);
+if ~isempty(app.PTS.cpplon) && ~isempty(app.PTS.cpplat)
+    % Convert to XY (meters)
+    [sx,sy] = Geo2Cart(sx,sy,PTS.cpplon,PTS.cpplat);
+end
 FL = NaNdlm2struct([sx,sy],'Boundary',BP);
 
 PTS = app.PTS;

@@ -26,7 +26,7 @@ function ImportElevationData(varargin)
 app = varargin{1};
 
 % Turn off colormap
-app.ContoursDropDown.Value = 'Off';
+SetContourStatus(app,'Off');
 
 %--------------------------------------------------------------------------
 % Check to see if edge structure is loaded
@@ -283,6 +283,7 @@ if any(strcmpi(ext,{'.tiff','.tif'}))
 end
 
 xyzFun.Values = -xyzFun.Values;
+xyzFun = CoordinateConversion(xyzFun,'auto',PTS.cpplon,PTS.cpplat);
 app.xyzFun = xyzFun;
 
 % Update GUI data
