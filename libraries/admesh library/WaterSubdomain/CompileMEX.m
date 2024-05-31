@@ -1,7 +1,12 @@
 function CompileMEX
 
 % Find all .c files in admesh library
-Subfolders = {'admesh library','InsidePolyFolder'};
+Subfolders = {
+    'admesh library',...
+    'InsidePolyFolder',...
+    ['topotoolbox-master',filesep,'@FLOWobj',filesep,'private']
+    };
+
 c_files = [];
 for i = 1 : length(Subfolders)
     c_files = [c_files; dir(['libraries/',Subfolders{i},'/**/*.c'])];
