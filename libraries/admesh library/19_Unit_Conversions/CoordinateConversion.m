@@ -35,8 +35,8 @@ switch lower(mode)
         status = 1;
 
     case 'auto'
-        if ~isempty(cpplon)
-            output = Geo2Cart(input,cpplon,cpplat);
+        if ~isempty(input.cpplon)
+            output = Geo2Cart(input,input.cpplon,input.cpplat);
             status = 1;
         else
             if isfield(input,'Poly') % PTS structure input

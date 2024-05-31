@@ -74,9 +74,9 @@ switch ext
         
         % Convert to cartesian coordinates if needed.
         [app.PTS,status] = CoordinateConversion(app.PTS,'auto');
-        app.xyzFun = CoordinateConversion(app.xyzFun,'auto',app.PTS.cpplon,app.PTS.cpplat);
 
         if status
+            app.xyzFun = CoordinateConversion(app.xyzFun,'forward',app.PTS.cpplon,app.PTS.cpplat);
             PlotEdgeStructure(app,.1);
         end
 
@@ -171,9 +171,9 @@ switch ext
         
         % Convert to cartesian coordinates if needed.
         [app.PTS,status] = CoordinateConversion(app.PTS,'auto');
-        app.xyzFun = CoordinateConversion(app.xyzFun,'auto',app.PTS.cpplon,app.PTS.cpplat);
-
+        
         if status
+            app.xyzFun = CoordinateConversion(app.xyzFun,'forward',app.PTS.cpplon,app.PTS.cpplat);
             PlotEdgeStructure(app,.1);
         end
 
