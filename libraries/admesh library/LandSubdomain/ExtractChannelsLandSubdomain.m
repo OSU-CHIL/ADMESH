@@ -48,7 +48,7 @@ A = app.TTC.A;
 app.ProgressBarButton.Text = 'Extracting open channels from DEM...'; drawnow;
 warnStruct = warning;
 warning('off');
-FL1 = klargestconncomps(STREAMobj(FD,A > app.kEditField.Value));
+FL1 = klargestconncomps(STREAMobj(FD,A > app.MinDrainageAreaEditField.Value));
 warning(warnStruct);
 
 if isempty(FL1)
@@ -65,7 +65,7 @@ BP = [app.PTS.Poly.x(:), app.PTS.Poly.y(:)];
 [sx,sy] = STREAMobj2XY(FL1);
 if ~isempty(app.PTS.cpplon) && ~isempty(app.PTS.cpplat)
     % Convert to XY (meters)
-    [sx,sy] = Geo2Cart(sx,sy,PTS.cpplon,PTS.cpplat);
+    [sx,sy] = Geo2Cart(sx,sy,app.PTS.cpplon,app.PTS.cpplat);
 end
 FL = NaNdlm2struct([sx,sy],'Boundary',BP);
 
