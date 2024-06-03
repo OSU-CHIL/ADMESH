@@ -91,5 +91,7 @@ h = plot(app.ViewAxes,FL2(:,1),FL2(:,2),'b');
 
 set(h,'tag','landchannel');
 
+app.MainApp.PTS = app.PTS;
+app.MainApp.MinDrainageArea = app.MinDrainageAreaEditField.Value;
 app.ProgressBarButton.Text = 'Ready'; drawnow;
 
