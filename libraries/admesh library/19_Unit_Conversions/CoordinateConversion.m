@@ -37,8 +37,13 @@ switch lower(mode)
 
     case 'auto'
         if isfield(input,'cpplon') && ~isempty(input.cpplon)
-            output = Geo2Cart(input,input.cpplon,input.cpplat);
-            status = 1;
+            if isfield(input,'Poly') % PTS structure input
+                output = Geo2Cart(input,input.cpplon,input.cpplat);
+                status = 1;
+            elseif isfield(input,'Points') % MESH
+                output = Cart2Geo(input,input.cpplon,input.cpplat);
+                status = 1;
+            end
         else
             if isfield(input,'Poly') % PTS structure input
                 x = vertcat(input.Poly.x);
