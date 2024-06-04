@@ -3,7 +3,7 @@ function CompileMEX
 % Find all .c files in admesh library
 Subfolders = {
     'admesh library',...
-    'InsidePolyFolder',...
+    'InsidePoly',...
     ['topotoolbox-master',filesep,'@FLOWobj',filesep,'private']
     };
 
@@ -13,21 +13,8 @@ for i = 1 : length(Subfolders)
     c_files = c_files(:);
 end
 
-% Identify platform and set extension of mex file
-if ismac
-    [~,result] = system('uname -m');
-    if contains(result,'arm64')
-        extension = '.mexmaca64';
-    else
-        extension = '.mexmaci64';
-    end
-elseif isunix
-    extension = '.mexa64';
-elseif ispc
-    extension = '.mexw64';
-else
-    error('Platform cannot be identified.')
-end
+% Identify extension of mex file
+extension = ['.',mexext];
 
 % Compile mex files over loop
 PWD = pwd; % Keep current folder

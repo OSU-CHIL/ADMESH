@@ -36,7 +36,7 @@ switch lower(mode)
         status = 1;
 
     case 'auto'
-        if ~isempty(input.cpplon)
+        if isfield(input,'cpplon') && ~isempty(input.cpplon)
             output = Geo2Cart(input,input.cpplon,input.cpplat);
             status = 1;
         else

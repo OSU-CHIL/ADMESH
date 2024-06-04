@@ -21,7 +21,7 @@ end
 %----------------------------------------------------------------------
 h2 = @(x,y) interp2(X,Y,h,x,y);
 for i = 1 : length(PI)
-    Mesh1D(i) = MeshGeneration1D(PI(i),fixedPoints,Settings,h2,UnitScale);
+    Mesh1D(i) = MeshGeneration1D(PI(i),fixedPoints,Settings,h2);
     app.ProgressBarButton.Text = sprintf('Generating 1D mesh... (%d/%d)',i,length(PI)); drawnow;
 end
 [Mesh1D,Constraints] = PostMesh1D(Mesh1D,app.PTS.Constraints,app.MinElementSizeEditField.Value);
@@ -60,7 +60,6 @@ end
 PTS.Constraints(IC) = [];
 
 app.PTS = PTS;
-app.TTC = [];
 
 app.DummyConstraint = 0;
 

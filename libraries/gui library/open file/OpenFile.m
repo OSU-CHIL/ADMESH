@@ -33,8 +33,10 @@ app.ProgressBarButton.Text = 'Select a file...';
 app.ProgressBarButton.Icon = '';
 
 % Ask the user to select a file
+f_dummy = warndlg('Select a file...','ADMESH'); %create a dummy figure so that uigetfile doesn't minimize our GUI
 [filename, pathname] = uigetfile(...
     {'*.mat;*.14;*.grd;*.2dm;*.shp','Files (*.mat,*.14,*.grd,*.2dm,*.shp)'},'Select a file');
+delete(f_dummy); % delete the dummy figure
 
 % If user cancels
 if filename == 0

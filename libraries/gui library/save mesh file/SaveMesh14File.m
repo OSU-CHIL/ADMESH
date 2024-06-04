@@ -67,7 +67,7 @@ if isfield(MESH,'cpplon') && ~isempty(MESH.cpplon)
         case 'Geographic' % Convert back to geographic coordinates
             
             % Convert PTS data structure
-            MESH = Meters2Geo(MESH);
+            MESH = Cart2Geo(MESH);
             
     end
     
