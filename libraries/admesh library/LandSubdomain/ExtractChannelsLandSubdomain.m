@@ -15,10 +15,9 @@ if strcmpi(event,'firstcall')
     
     PTS = app.PTS;
     if ~isempty(PTS.Constraints) && any([PTS.Constraints(:).num] == 18)
-        choice = questdlg(...
-            'Open channel constraints are found. Do you want to replace them?',...
-            'ADMESH',...
-            'Yes','No','No');
+        msg = 'Open channel constraints are found. Do you want to replace them?';
+        choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'Yes','No'},'DefaultOption',2,'Icon','Warning');
         
         if strcmpi(choice,'no')
             return;

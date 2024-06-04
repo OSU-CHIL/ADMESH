@@ -57,11 +57,9 @@ end
 %--------------------------------------------------------------------------
 if isfield(MESH,'cpplon') && ~isempty(MESH.cpplon)
     
-    choice = questdlg(...
-        'What coordinate system would you like to write your data in?', ...
-        'ADmesh', ...
-        'Geographic','Cartesian','Geographic');
-    
+    msg = 'What coordinate system would you like to write your data in?';
+    choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'Geographic','Cartesian'},'DefaultOption',1,'Icon','Warning');
     drawnow; pause(0.05);  % this innocent line prevents the Matlab hang
     
     switch choice

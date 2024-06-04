@@ -49,11 +49,11 @@ end
 %--------------------------------------------------------------------------
 if ~isempty(xyzFun) % Bathymetry data is loaded
     
-    choice = questdlg(['There is already existing bathymetry. Would you like '...
+    msg = ['There is already existing bathymetry. Would you like '...
         'to replace the existing bathymetry or use this ' ...
-        'bathymetry temporarily?.']...
-        ,'ADMESH','Replace','Use Temporarily', 'Cancel','Replace');
-    
+        'bathymetry temporarily?.'];
+    choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'Replace','Use Temporarily','Cancel'},'DefaultOption',1,'Icon','Warning');
     drawnow; pause(0.05);  % this innocent line prevents the Matlab hang
     
     if strcmp(choice,'Cancel')
@@ -206,7 +206,9 @@ if strcmp(ext,'.asc')
                 
         % Fill in NaN's and transpose/flip
         if any(isnan(z(:)))
-            choice = questdlg('NaNs are found in the elevation data. How do you proceed?','ADMESH','In-paint NaNs','Ignore NaNs','Ignore NaNs');
+            msg = 'NaNs are found in the elevation data. How do you proceed?';
+            choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'In-paint NaNs','Ignore NaNs'},'DefaultOption',2,'Icon','Warning');
             switch choice
                 case 'In-paint NaNs'
                     z = flipud(inpaint_nans(z',4));
@@ -283,7 +285,7 @@ if any(strcmpi(ext,{'.tiff','.tif'}))
 end
 
 xyzFun.Values = -xyzFun.Values;
-xyzFun = CoordinateConversion(xyzFun,'auto',PTS.cpplon,PTS.cpplat);
+xyzFun = CoordinateConversion(app,xyzFun,'auto',PTS.cpplon,PTS.cpplat);
 app.xyzFun = xyzFun;
 
 % Update GUI data

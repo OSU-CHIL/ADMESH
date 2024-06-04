@@ -73,10 +73,10 @@ switch ext
         PlotEdgeStructure(app,.1);
         
         % Convert to cartesian coordinates if needed.
-        [app.PTS,status] = CoordinateConversion(app.PTS,'auto');
+        [app.PTS,status] = CoordinateConversion(app,app.PTS,'auto');
 
         if status
-            app.xyzFun = CoordinateConversion(app.xyzFun,'forward',app.PTS.cpplon,app.PTS.cpplat);
+            app.xyzFun = CoordinateConversion(app,app.xyzFun,'forward',app.PTS.cpplon,app.PTS.cpplat);
             PlotEdgeStructure(app,.1);
         end
 
@@ -100,7 +100,7 @@ switch ext
         PlotMesh(app,.1);
         
         % Convert to cartesian coordinates if needed.
-        [app.MESH,status] = CoordinateConversion(app.MESH,'auto');
+        [app.MESH,status] = CoordinateConversion(app,app.MESH,'auto');
 
         if status
             PlotMesh(app,.1);
@@ -123,17 +123,15 @@ switch ext
         end
 
         % Convert to cartesian coordinates if needed.
-        app.MESH   = CoordinateConversion(app.MESH,'auto');
+        app.MESH   = CoordinateConversion(app,app.MESH,'auto');
 
         app.ProgressBarButton.Text = 'Ready.'; drawnow;
         
     case '.shp'
         
-        choice = questdlg(...
-            'Do you want to create a file to save settings?', ...
-            'ADmesh', ...
-            'Yes','No','Yes');
-    
+        msg = 'Do you want to create a file to save settings?';
+        choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'Yes','No'},'DefaultOption',1,'Icon','Warning');
         if strcmpi(choice,'yes')
             [file, path] = uiputfile(...
                 {'*.mat','Files (*.mat)'},'Select a file to save settings');
@@ -170,10 +168,10 @@ switch ext
         PlotEdgeStructure(app,.1);
         
         % Convert to cartesian coordinates if needed.
-        [app.PTS,status] = CoordinateConversion(app.PTS,'auto');
+        [app.PTS,status] = CoordinateConversion(app,app.PTS,'auto');
         
         if status
-            app.xyzFun = CoordinateConversion(app.xyzFun,'forward',app.PTS.cpplon,app.PTS.cpplat);
+            app.xyzFun = CoordinateConversion(app,app.xyzFun,'forward',app.PTS.cpplon,app.PTS.cpplat);
             PlotEdgeStructure(app,.1);
         end
 

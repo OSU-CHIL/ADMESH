@@ -189,9 +189,9 @@ set(gui.Window,'WindowButtonMotionFcn' , @CoordDisplay)
 %--------------------------------------------------------------------------
 % Ask user how it looks?
 %--------------------------------------------------------------------------
-choice = questdlg({...
-    'Would you like to keep the sub mesh or run ADMESH again?'},...
-    'ADMESH','Continue','Re-Try','Continue');
+msg = 'Would you like to keep the sub mesh or run ADMESH again?';
+choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'Continue','Re-Try'},'DefaultOption',1,'Icon','Warning');
 
 switch choice
     

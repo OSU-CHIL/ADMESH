@@ -1,4 +1,4 @@
-function [output,status] = CoordinateConversion(input,mode,varargin)
+function [output,status] = CoordinateConversion(app,input,mode,varargin)
 
 output = input;
 status = 0;
@@ -20,6 +20,7 @@ elseif isempty(varargin)
     end
 end
 
+app.ProgressBarButton.Text = 'Converting coordinates...'; drawnow;
 switch lower(mode)
     case 'forward' % Convert to XY (meters)
         if ~isempty(cpplon)
@@ -55,11 +56,12 @@ switch lower(mode)
 
             if all(x < 180 & x > -180 & y < 90 & y > -90)
 
-                choice = questdlg(['The input may be in geographic coordinate system (in degrees). '...
-                    'Do you want to convert it into planar coordinate system (in meters)?'],'Coordinate conversion',...
-                    'Yes','No','Yes');
+                msg = ['The input may be in geographic coordinate system (in degrees). '...
+                    'Do you want to convert it into planar coordinate system (in meters)?'];
+                choice = uiconfirm(app.UIFigure,msg,'Coordinate conversion',...
+                    'Options',{'Convert coordinates','Do not convert coordinates'},'DefaultOption',1,'Icon','Warning');
 
-                if strcmpi(choice,'yes')
+                if strcmpi(choice,'Convert coordinates')
                     % Convert to XY (meters)
                     [output,output.cpplon,output.cpplat] = Geo2Cart(input);
                     status = 1;

@@ -30,9 +30,9 @@ function mesh = READ_2DM(file)
 %------------------------------------------------------------------------------
 
 % Construct a questdlg with two options
-choice = questdlg('Is there a bathymetry file to go along with this?', ...
-    'ADmesh', ...
-    'Yes','Nope','Nope');
+msg = 'Is there a bathymetry file to go along with this?';
+choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'Yes','No'},'DefaultOption',2,'Icon','Warning');
 
 % Handle response
 switch choice

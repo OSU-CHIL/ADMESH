@@ -94,11 +94,10 @@ end
 %---------------------------------------------------------------------
 if ~isempty(gui.MESH)
     
-    choice = questdlg(['To import a KML file ADMESH+ needs to clear the current mesh.',...
-        ' What would you like to do?'], ...
-        'ADMESH', ...
-        'Save mesh and clear', 'Clear mesh', 'Cancel', 'Cancel');
-    
+    msg = ['To import a KML file ADMESH+ needs to clear the current mesh.',...
+        ' What would you like to do?'];
+    choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'Save mesh and clear','Clear mesh','Cancel'},'DefaultOption',3,'Icon','Warning');
     switch choice
         
         case 'Save mesh and clear'
@@ -174,11 +173,10 @@ if polygon
     if ~isempty(gui.PTS)
         
         % Ask user how we're going to import the data
-        choice = questdlg(['Are you creating a new edge structure or '...
-            'appending polygon(s) to the current edge structure file?'], ...
-            'ADMESH', ...
-            'New File', 'Appending', 'Cancel', 'Appending');
-        
+        msg = ['Are you creating a new edge structure or '...
+            'appending polygon(s) to the current edge structure file?'];
+        choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'New File','Appending','Cancel'},'DefaultOption',2,'Icon','Warning');
     else
         
         choice = 'New File';
@@ -328,10 +326,9 @@ if polygon
                 
             end
             
-            choice = questdlg('What type of polygon is this?', ...
-                'ADMESH', ...
-                'Internal Barrier', 'Internal Boundary', 'Internal Ridge Line', 'Internal Ridge Line');
-
+            msg = 'What type of polygon is this?';
+            choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'Internal Barrier','Internal Boundary','Internal Ridge Line'},'DefaultOption',3,'Icon','Warning');
             % Append to PTS data structure
             gui.sb.Progressbar.setVisible(true)
             set(gui.sb.Progressbar,'Minimum',1,'Maximum',numel(S),'Value',1)

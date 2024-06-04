@@ -1,7 +1,8 @@
 function CloseADMESH(varargin)
 
-choice = questdlg('Are you sure you want to close ADMESH?','ADMESH',...
-    'Yes','No','No');
+msg = 'Are you sure you want to close ADMESH?';
+choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+    'Options',{'Yes','No'},'DefaultOption',2,'Icon','Warning');
 drawnow; pause(.005);
 
 switch choice

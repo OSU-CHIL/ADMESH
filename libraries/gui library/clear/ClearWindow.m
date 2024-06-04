@@ -36,8 +36,9 @@ end
 %--------------------------------------------------------------------------
 % Ask user if they are sure they want to delete the mesh
 %--------------------------------------------------------------------------
-choice = questdlg('Are you sure you want to clear?'...
-    ,'ADMESH','Clear','Cancel', 'Cancel');
+msg = 'Are you sure you want to clear?';
+choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+    'Options',{'Clear','Cancel'},'DefaultOption',2,'Icon','Warning');
 
 drawnow; pause(0.05);  % this innocent line prevents the Matlab hang
 
