@@ -89,7 +89,7 @@ app.ResultsBox.Value = '';
 SetContourStatus(app,'Off');
 
 %--------------------------------------------------------------------------
-% Clear guiH mesh data structure variables
+% Clear app data
 %--------------------------------------------------------------------------
 app.PTS                = [];   % Edge Structure
 app.xyzFun             = [];   % Elevation interpolant
@@ -101,7 +101,6 @@ app.per                = 0;    % Percent offset
 
 app.ProgressBarButton.Text = 'Ready';
 
-% guidata(fig,gui)
 drawnow;
 
 end

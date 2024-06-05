@@ -24,6 +24,8 @@ for i = 1 : length(PI)
     Mesh1D(i) = MeshGeneration1D(PI(i),fixedPoints,Settings,h2);
     progdlg.Value = i/length(PI);
 end
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
+    'Applying post processes for 1D mesh...','Indeterminate','on');
 [Mesh1D,Constraints] = PostMesh1D(Mesh1D,app.PTS.Constraints,app.MinElementSizeEditField.Value);
 app.PTS.Constraints = Constraints;
 

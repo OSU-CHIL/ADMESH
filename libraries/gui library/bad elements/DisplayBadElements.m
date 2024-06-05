@@ -25,8 +25,6 @@ function DisplayBadElements(app)
 %------------------------------------------------------------------------------
 % Get GUI data
 %------------------------------------------------------------------------------
-% fig         = varargin{1};
-% app         = guidata(fig);
 pH          = app.UIAxes;
 meshPatch   = app.MESH;
 

@@ -18,7 +18,7 @@ N = size(Vx,1);
 M = size(Vy,2);
 
 msg = 'Pruning medial axis branches...';
-progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 while 1
     nBranch_pruned = 0;
@@ -114,6 +114,7 @@ while 1
     if isequal(BranchNodes,ID_pruned) && isempty(iBranch_pruned)
         break;
     end
+    progdlg.Indeterminate = 'off';
     progdlg.Value = length(ID_pruned)/length(BranchNodes);
     BranchNodes = ID_pruned;
     ID_pruned = [];

@@ -1,4 +1,4 @@
-function OpenFile(varargin)
+function OpenFile(app)
 % OpenFile - GUI Callback that loads a mesh or edge structure file
 % file.
 %
@@ -20,11 +20,6 @@ function OpenFile(varargin)
 % August 2013; Last revision: 08-August-2013
 
 %---------------------------- BEGIN CODE ---------------------------------
-
-%------------------------------------------------------------------------------
-% Get GUI data
-%------------------------------------------------------------------------------
-app = varargin{1};
 
 %------------------------------------------------------------------------------
 % Get filename & location from user
