@@ -52,8 +52,9 @@ prompt={[...
 name='ADmesh'; numlines=1; defaultanswer={num2str(app.MinEQ)};
 options.Resize='off'; options.WindowStyle='normal'; options.Interpreter='tex'; pause(.001)
 
-app.MinEQ = str2double(strtrim(cell2mat(inputdlg(prompt,name,numlines,defaultanswer,options)))); 
-
+try
+    app.MinEQ = str2double(strtrim(cell2mat(inputdlg(prompt,name,numlines,defaultanswer,options))));
+end
 drawnow; pause(0.05);  % this innocent line prevents the Matlab hang
 
 % Check range

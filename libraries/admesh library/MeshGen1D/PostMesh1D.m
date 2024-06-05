@@ -206,7 +206,7 @@ C3X = {Mesh1D(IC3).X};
 C3Y = {Mesh1D(IC3).Y};
 C3XY = cellfun(@(x,y) [x(:),y(:)],C3X,C3Y,'UniformOutput',0);
 
-dx = 1*km2deg(1e-3); % resolution of background grid (convert meter to degree)
+dx = 1; % resolution of background grid (convert meter to degree)
 temp2 = 0;
 for i = 1 : length(Mesh1D)
     if abs(Constraints(i).num) == 19

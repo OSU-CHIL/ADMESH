@@ -242,7 +242,9 @@ switch lower(status)
         elseif ishandle(h2) == 1
             
             delete(h2);
-            PlotMesh(app,.1);
+            if ~isempty(app.MESH)
+                PlotMesh(app,.1);
+            end
         end
 
         colorbar(app.UIAxes,'off');

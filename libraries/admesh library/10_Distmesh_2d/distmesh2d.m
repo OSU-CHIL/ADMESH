@@ -215,7 +215,7 @@ for k = 1:niter
             
             
             if ~isempty(ConstraintsXY)
-                plot(pH,ConstraintsXY(:,1),ConstraintsXY(:,2),':','color',[0.5 0 0]);
+                plot(pH,ConstraintsXY(:,1),ConstraintsXY(:,2),':','color',[0.5 0 0],'Tag','Mesh');
             end
             
             % Plot Constraints

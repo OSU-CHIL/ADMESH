@@ -36,7 +36,7 @@ f_dummy = warndlg('Select a file...','ADMESH'); %create a dummy figure so that u
 [filename, pathname] = uigetfile(...
     {'*.mat;*.14;*.grd;*.2dm;*.shp','Files (*.mat,*.14,*.grd,*.2dm,*.shp)'},'Select a file');
 delete(f_dummy); % delete the dummy figure
-
+figure(app.UIFigure);
 % If user cancels
 if filename == 0
     return
@@ -48,8 +48,11 @@ close(progdlg);
 %------------------------------------------------------------------------------
 [~,~,ext] = fileparts(filename);
 
-% Turn off colormap
-SetContourStatus(app,'Off');
+% Clear window
+status = ClearWindow(app);
+if status == 0
+    return;
+end
 
 switch ext
     

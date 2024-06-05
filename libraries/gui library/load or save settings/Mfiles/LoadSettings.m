@@ -126,7 +126,7 @@ if isfield(Settings,'SmoothingRMSE')
 end
 
 if isfield(Settings,'MinDrainageArea')
-    app.Settings.MinDrainageArea = Settings.MinDrainageArea;
+    app.MinDrainageArea = Settings.MinDrainageArea;
 end
 
 end
