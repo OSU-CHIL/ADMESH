@@ -1,4 +1,4 @@
-function [X,Y,delta] = CreateBackgroundGrid(PTS,hmax,hmin,res,ProgressBar)
+function [X,Y,delta] = CreateBackgroundGrid(PTS,hmax,hmin,res,UIFigure)
 % create_background_mesh - Creates a structured background grid over the
 % domain PTS 
 %
@@ -31,8 +31,8 @@ function [X,Y,delta] = CreateBackgroundGrid(PTS,hmax,hmin,res,ProgressBar)
 %--------------------------------------------------------------------------
 % Status bar Update
 %--------------------------------------------------------------------------
-ProgressBar.Text = 'Creating background mesh...'; drawnow;
-
+msg = 'Creating background mesh...';
+uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 %--------------------------------------------------------------------------
 % Find boundaing box
 %--------------------------------------------------------------------------

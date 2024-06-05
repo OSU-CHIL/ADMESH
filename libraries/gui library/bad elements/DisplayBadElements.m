@@ -59,7 +59,10 @@ drawnow; pause(0.05);  % this innocent line prevents the Matlab hang
 % Check range
 if app.MinEQ < 0 || app.MinEQ > 1
     
-    warndlg('The value you entered was out of the range of [0 , 1]','Error');
+    msg = 'The value you entered was out of the range of [0 , 1]';
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+
     return
     
 end

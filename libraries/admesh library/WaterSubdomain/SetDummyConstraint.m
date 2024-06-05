@@ -12,7 +12,9 @@ PI = app.PI;
 
 IC = find([PTS.Constraints.num] < 0);
 if length(IC) ~= length(PI)
-    warndlg('Something is wrong.','Error');
+    msg = 'Something is wrong.';
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
     return;
 end
 

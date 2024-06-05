@@ -1,4 +1,7 @@
-function MA_1D = ConstructMA1D(MA,Mask1D,Mask2D)
+function MA_1D = ConstructMA1D(MA,Mask1D,Mask2D,UIFigure)
+
+msg = 'Constructing medial axis for open-channel constraints...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
 
 BranchNodesID = vertcat(MA.BranchNodes{:});
 BranchNodesID = unique(BranchNodesID);
@@ -30,7 +33,7 @@ for i = 1 : length(MA.BranchNodes)
             end
         end
     end
-    fprintf('Construct MA 1D (%.2f%%)\n',i/length(MA.BranchNodes)*100);
+    progdlg.Value = i/length(MA.BranchNodes);
 end
 
 MA_1D = [];

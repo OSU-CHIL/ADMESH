@@ -1,10 +1,13 @@
-function [Vx,Vy,Mask1,Mask2] = ComputeVDT_DDM(pgon,dd_ID,dd_Boxes,xg,yg,delta)
+function [Vx,Vy,Mask1,Mask2] = ComputeVDT_DDM(pgon,dd_ID,dd_Boxes,xg,yg,delta,UIFigure)
 
 D = sparse(length(yg),length(xg));
 Vx = sparse(length(yg),length(xg));
 Vy = sparse(length(yg),length(xg));
 Mask1 = false(length(yg),length(xg));
 Mask2 = false(length(yg),length(xg));
+
+msg = 'Computing Vector Distance Transform...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 for iDD = 1 : size(dd_ID,1)
        
@@ -108,7 +111,7 @@ for iDD = 1 : size(dd_ID,1)
     Mask2(dd_ID{iDD,1},dd_ID{iDD,2}) = ~IN;
     
 %     clear D Dg1 Vx Vy Vxg1 Vyg1 Vmag Vmag1 X Y;
-%     waitbar(iDD/length(dd_pgons),wbar);
-    fprintf('Computing VDT DDM (%d/%d)\n',iDD,size(dd_ID,1))
+    progdlg.Indeterminate = 'off';
+    progdlg.Value = iDD/size(dd_ID,1);
 end
 

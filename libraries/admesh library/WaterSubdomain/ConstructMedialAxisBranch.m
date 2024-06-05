@@ -1,4 +1,4 @@
-function MA = ConstructMedialAxisBranch(id_MA)
+function MA = ConstructMedialAxisBranch(id_MA,UIFigure)
 %==========================================================================
 % ConstructMedialAxisBranch_v2
 % - This function does this, this, and this...
@@ -8,6 +8,9 @@ function MA = ConstructMedialAxisBranch(id_MA)
 % 2021-03-15 (v2) Younghun: Use built-in 'bwmorph' with 'branchpoints' option to find branch points
 % 
 %==========================================================================
+
+msg = 'Constructing medial axis branches...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 id_MA = full(id_MA);
 N = size(id_MA,1);
@@ -172,7 +175,8 @@ for i = 1 : length(id_MA2)
         BranchNodes{nBranch} = k_connection;
         JointConnectivity(nBranch,:) = [k_connection(1),k_connection(end)];
     end
-    fprintf('Constructing MA branch (%d/%d)\n',i,length(id_MA2))
+    progdlg.Indeterminate = 'off';
+    progdlg.Value = i/length(id_MA2);
 end
 
 %--------------------------------------------------------------------------

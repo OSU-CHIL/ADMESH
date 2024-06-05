@@ -1,7 +1,7 @@
 function GenerateMeshOnConstraints(X,Y,h,Settings,app)
 
-app.ProgressBarButton.Text = 'Generating 1D mesh...';
-
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
+    'Generating 1D mesh...');
 %--------------------------------------------------------------------------
 % Set fixed points
 %--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ end
 h2 = @(x,y) interp2(X,Y,h,x,y);
 for i = 1 : length(PI)
     Mesh1D(i) = MeshGeneration1D(PI(i),fixedPoints,Settings,h2);
-    app.ProgressBarButton.Text = sprintf('Generating 1D mesh... (%d/%d)',i,length(PI)); drawnow;
+    progdlg.Value = i/length(PI);
 end
 [Mesh1D,Constraints] = PostMesh1D(Mesh1D,app.PTS.Constraints,app.MinElementSizeEditField.Value);
 app.PTS.Constraints = Constraints;

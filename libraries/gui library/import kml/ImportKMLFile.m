@@ -71,8 +71,9 @@ path    = ~isempty(find(~cellfun(@isempty,strfind(C{1}, '<LineString>')), 1));
 
 % Check if file contains polygons and/or lines
 if polygon == 0 && path == 0
-    warndlg('To be imported a KML file should contain a polygon or path.',...
-        'Error');
+    msg = 'To be imported a KML file should contain a polygon or path.';
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
     % gui.sb.setText('Ready')
     return
     
@@ -80,9 +81,10 @@ end
 
 % Check if KML file contains both polygon and line
 if polygon == 1 && path == 1
-    warndlg(['To be imported successfully polygons and ' ...
-        'paths should be seperate KML files.'],...
-        'Error');
+    msg = ['To be imported successfully polygons and ' ...
+        'paths should be seperate KML files.'];
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
     % gui.sb.setText('Ready')
     return
     
@@ -320,9 +322,10 @@ if polygon
             % Warning message
             if wrnmsg
                 
-                warndlg(['Some paths were not stored because not '...
-                    'all points were with in the domain.'],...
-                    'Error');
+                msg = ['Some paths were not stored because not '...
+                    'all points were with in the domain.'];
+                uiconfirm(app.UIFigure,msg,'ADMESH',...
+                    'Options',{'OK'},'DefaultOption',1,'Icon','Error');
                 
             end
             

@@ -1,4 +1,7 @@
-function [BoundaryXY,BoundaryID] = Mask2XY(Mask,xg,yg)
+function [BoundaryXY,BoundaryID] = Mask2XY(Mask,xg,yg,UIFigure)
+
+msg = 'Converting mask boundary to XY coordinates...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
 
 Mask = full(Mask);
 MaskBoundary = bwmorph(Mask,'fill');
@@ -24,7 +27,10 @@ while 1
             MaskBoundary1 = bwtraceboundary(Mask,[I1(1),J1(1)],FSTEP{i},8,inf,DIR{i});
             break;
         catch
-            fprintf('Boundary search failed in ''%s'' direction.\n',DIR{i});
+            msg = sprintf('Boundary search failed in ''%s'' direction.\n',DIR{i});
+            uiconfirm(UIFigure,msg,'ADMESH',...
+                'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+            
         end
     end
 
@@ -58,7 +64,7 @@ while 1
 %     if isempty(I1)
 %         break;
 %     end
-    fprintf('Mask to XY (%.2f%%)\n',100*(1 - length(I1)/NumBoundaryNodes));
+    progdlg.Value = (1 - length(I1)/NumBoundaryNodes);
 end
 clear W2D_bw_boundary;
 

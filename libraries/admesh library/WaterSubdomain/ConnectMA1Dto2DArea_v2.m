@@ -1,4 +1,7 @@
-function MA_connected = ConnectMA1Dto2DArea_v2(MA,MaskBoundaryIDs,delta)
+function MA_connected = ConnectMA1Dto2DArea_v2(MA,MaskBoundaryIDs,delta,UIFigure)
+
+msg = 'Connect open-channel/internal boundary constraints to shorelines if they are too close...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
 
 %% ========================================================================
 % Make MA1D is connected to 2D area
@@ -54,7 +57,7 @@ for i = 1 : length(BranchNodes)
     BranchNodes_connected{i} = inode;
     XY_connected{i} = [x,y];
     Length(i) = sum( sqrt((x(1:end-1) - x(2:end)).^2 + (y(1:end-1) - y(2:end)).^2));
-    fprintf('Connect MA 1D to 2D area (%.2f%%)\n',i/length(BranchNodes)*100);
+    progdlg.Value = i/length(BranchNodes);
 end
 
 n = max(cellfun(@(x) length(x),BranchNodes_connected));

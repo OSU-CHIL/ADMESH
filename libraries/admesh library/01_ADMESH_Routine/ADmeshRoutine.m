@@ -85,12 +85,12 @@ t=cputime; % Start Timer for ADmesh
 %--------------------------------------------------------------------------
 % Create structured background mesh
 %--------------------------------------------------------------------------
-[X,Y,delta] = CreateBackgroundGrid(app.PTS,hmax,hmin,res,app.ProgressBarButton);
+[X,Y,delta] = CreateBackgroundGrid(app.PTS,hmax,hmin,res,app.UIFigure);
 
 %--------------------------------------------------------------------------
 % Calculate distance function
 %--------------------------------------------------------------------------
-[D,gradD]   = SignedDistanceFunction(app.PTS,X,Y,delta,hmax,app.ProgressBarButton);
+[D,gradD]   = SignedDistanceFunction(app.PTS,X,Y,delta,hmax,app.UIFigure);
 
 while 1 % Repeat if 1D mesh generation turns on
 %--------------------------------------------------------------------------
@@ -101,22 +101,22 @@ h0 = hmax*ones(size(D));
 %--------------------------------------------------------------------------
 % Compute boundary curvature
 %--------------------------------------------------------------------------
-h0 = CurvatureFunction(h0,D,gradD,X,Y,K,g,hmax,hmin,Settings,app.ProgressBarButton,app.PTS);
+h0 = CurvatureFunction(h0,D,gradD,X,Y,K,g,hmax,hmin,Settings,app.UIFigure,app.PTS);
 
 %--------------------------------------------------------------------------
 % Compute local feature size
 %--------------------------------------------------------------------------
-h0 = MedialAxisFunction(h0,X,Y,D,gradD,R,hmin,hmax,Settings,app.ProgressBarButton);
+h0 = MedialAxisFunction(h0,X,Y,D,gradD,R,hmin,hmax,Settings,app.UIFigure);
 
 %--------------------------------------------------------------------------
 % Interpolate bathymetry to background grid if needed.
 %--------------------------------------------------------------------------
-Z  = CreateElevationGrid(X,Y,app.xyzFun,Settings,app.ProgressBarButton);
+Z  = CreateElevationGrid(X,Y,app.xyzFun,Settings,app.UIFigure);
 
 %--------------------------------------------------------------------------
 % Compute bathymetry
 %--------------------------------------------------------------------------
-h0 = BathymetryFunction(h0,X,Y,Z,s,hmin,hmax,delta,Settings,app.ProgressBarButton);
+h0 = BathymetryFunction(h0,X,Y,Z,s,hmin,hmax,delta,Settings,app.UIFigure);
 
 %--------------------------------------------------------------------------
 % Compute dominate tide function
@@ -131,7 +131,7 @@ h0 = Dominate_tide(h0,T,C,Z,size(X),hmax,hmin,Settings); clear Z
 %--------------------------------------------------------------------------
 % Compute mesh size function
 %--------------------------------------------------------------------------
-h  = MeshSizeFunction(h0,D,hmax,hmin,g,delta,app.ProgressBarButton); clear h0
+h  = MeshSizeFunction(h0,D,hmax,hmin,g,delta,app.UIFigure); clear h0
 
 % h(D > 0) = nan;
 % 
@@ -170,7 +170,7 @@ hmin        = min(h(:));                            clear h
 % Generate mesh
 %--------------------------------------------------------------------------
 %MESH = distquadmesh2d(PTS,DistFun,DistGxFun,DistGyFun,MeshFun,xyzFun,hmin,Settings);
-app.MESH = distmesh2d(app.PTS,phi,MeshFun,app.xyzFun,hmin,Settings,app.ProgressBarButton,app.UIAxes,AdvSettings);
+app.MESH = distmesh2d(app.PTS,phi,MeshFun,app.xyzFun,hmin,Settings,app.UIFigure,app.UIAxes,AdvSettings);
 clear phi MeshFun
 
 %--------------------------------------------------------------------------
@@ -181,7 +181,8 @@ clear phi MeshFun
 %--------------------------------------------------------------------------
 % Plot Final Results
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Displaying final mesh...'; drawnow;
+msg = 'Displaying final mesh...';
+uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 PlotMesh(app,.1)
 
 %--------------------------------------------------------------------------
@@ -192,7 +193,8 @@ time_string = seconds2HrMinSec(cputime-t);
 %--------------------------------------------------------------------------
 % Update status bar
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = ['Run time: ' , time_string ]; drawnow;
+app.ResultsBox.Value{end+1} = '';
+app.ResultsBox.Value{end+1} = ['Run time: ' , time_string ];
 
 %--------------------------------------------------------------------------
 % Update .mat file

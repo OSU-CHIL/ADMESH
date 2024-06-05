@@ -37,8 +37,10 @@ matData = struct2cell(whos('-file',[pathname filename]));
 
 if ~any(strcmp(matData(1,:),'PTS'))
     
-    warndlg(['No edge structure exists in this file.' ...
-        ' Make sure you are selecting the correct file for ADMESH.'],'Error');
+    msg = ['No edge structure exists in this file.' ...
+        ' Make sure you are selecting the correct file for ADMESH.'];
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
     
     uiStatusBar('Ready')
     

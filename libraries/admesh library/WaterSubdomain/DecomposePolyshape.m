@@ -1,4 +1,7 @@
-function [dd_pgons,dd_Boxes,dd_ID,xg,yg] = DecomposePolyshape(pgon,Nx,Ny,dx,dBox)
+function [dd_pgons,dd_Boxes,dd_ID,xg,yg] = DecomposePolyshape(pgon,Nx,Ny,dx,dBox,UIFigure)
+
+msg = 'Decomposing input mask...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 minx = min(pgon.Vertices(:,1));
 maxx = max(pgon.Vertices(:,1));
@@ -40,7 +43,8 @@ for i = 1 : Nx
         end
         n1 = Nx*(i-1)+j;
         n2 = Nx*Ny;
-        fprintf('Decomposing polyshape.. (%d/%d)\n',n1,n2)
+        progdlg.Indeterminate = 'off';
+        progdlg.Value = n1/n2;
     end
 end
 

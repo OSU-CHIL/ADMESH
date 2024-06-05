@@ -9,7 +9,9 @@ MESH = gui.MESH; clear guiH
 % Check for variables
 %--------------------------------------------------------------------------
 if isempty(MESH) % User has not run ADmesh yet
-    warndlg('No mesh to save....','Error');
+    msg = 'No mesh to save....';
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
     return
 end
 

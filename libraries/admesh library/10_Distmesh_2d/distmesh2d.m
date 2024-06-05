@@ -1,4 +1,4 @@
-function MESH = distmesh2d(PTS,phi,MeshFun,xyzFun,hmin,Settings,ProgressBar,pH,AdvSettings)
+function MESH = distmesh2d(PTS,phi,MeshFun,xyzFun,hmin,Settings,UIFigure,pH,AdvSettings)
 % distmesh2d - Generates a mesh based on mesh size h
 %
 % Syntax:  [p,t] = distmesh2d(DistanceFun,MeshSizeFun,hmin,guiFig)
@@ -64,7 +64,8 @@ if ~isempty(AdvSettings)
     geps = geps_scale*hmin;
 end
 
-ProgressBar.Text = 'Creating initial distribution of nodal points...'; drawnow;
+msg = 'Creating initial distribution of nodal points...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 %--------------------------------------------------------------------------
 % Create initial distribution in bounding box (equilateral triangles)
@@ -117,9 +118,10 @@ N = size(p,1); % number of nodes
 
 in = ((nC+1):N)'; % Vector of non-pfix indices
 
+msg = 'Generating mesh...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
+progdlg.Value = 1/niter;
 
-ProgressBar.Text = ['Generating mesh... ' num2str(0,'%.0f') '%'];
-UpdateProgressBarButton(ProgressBar,1,niter);
 drawnow;
 
 %--------------------------------------------------------------------------
@@ -497,18 +499,14 @@ for k = 1:niter
         [q, ~] = MeshQuality(p,t,0,'Triangle');
         if q > qold; P = p; T = t; qold = q; Csave = C; end
     end
-
-    ProgressBar.Text =  ['Generating mesh... ' num2str((k/niter)*100,'%.0f') '%'];
+    
     if mod(k/niter,.01) == 0
-    UpdateProgressBarButton(ProgressBar,k,niter);
+        progdlg.Value = k/niter;
     end
-    drawnow limitrate;
     
 end
 
-ProgressBar.Text = '';
-ProgressBar.Icon = '';
-drawnow;
+close(progdlg);
 
 %--------------------------------------------------------------------------
 % Younghun: Re-construct triangulations and remove elements more precisely
@@ -589,7 +587,8 @@ T = sort(T(ind,:),2);
 %--------------------------------------------------------------------------
 % Clean up 
 %--------------------------------------------------------------------------
-ProgressBar.Text = 'Cleaning up final mesh...'; drawnow;
+msg = 'Cleaning up final mesh...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 T = BoundaryCleanUp(P,T,Csave); % Remove bad boundary elements
 

@@ -1,4 +1,7 @@
-function id_MA_new = ThinningMA(id_MA)
+function id_MA_new = ThinningMA(id_MA,UIFigure)
+
+msg = 'Thinning medial axis...';
+uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 bw = full(id_MA);
 

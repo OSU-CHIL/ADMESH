@@ -1,4 +1,4 @@
-function [Mask2DCell,Mask1DCell,M1DtoM2DCell] = FillMask2D(Mask2DCell,Mask1DCell,MA,lfs,delta_filling,delta_A,xg,yg,XY_b,dx,varargin)
+function [Mask2DCell,Mask1DCell,M1DtoM2DCell] = FillMask2D(Mask2DCell,Mask1DCell,MA,lfs,delta_filling,delta_A,xg,yg,XY_b,dx,UIFigure)
 
 if ~iscell(Mask2DCell)
     Mask2DCell = {Mask2DCell};
@@ -15,6 +15,9 @@ end
 %% ========================================================================
 % Identify branch nodes in 2D masks
 %==========================================================================
+msg = 'Find branch nodes in level 2 masks...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
+
 nBranch = zeros(nMask,1);
 BranchNodes = cell(nMask,1);
 
@@ -49,8 +52,8 @@ for i = 1 : length(MA.BranchNodes)
         end
     end
     end
-      
-    fprintf('Find branch nodes in level 2 masks (%.2f%%)\n',i/length(MA.BranchNodes)*100);
+    
+    progdlg.Value = i/length(MA.BranchNodes);
 end
 % If no branch nodes in some masks, BranchNodes returns empty
 IB = find(cellfun(@(x) iscell(x),BranchNodes));
@@ -59,6 +62,9 @@ BranchNodes = cellfun(@(x) vertcat(x{:}),BranchNodes(IB),'UniformOutput',0);
 %% ========================================================================
 % Filling with maximal disk
 %==========================================================================
+msg = 'Filling with maximal disk...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
+
 M1DtoM2DCell = cell(nMask,1);
 for iMask = 1 : nMask
     if ~ismember(iMask,IB)
@@ -81,7 +87,7 @@ for iMask = 1 : nMask
         %     [~,d] = knnsearch([ii,jj],[I,J]);
         K(I1(d < d1)) = 1;
         %     K = sub2ind(size(L1D),I(iii),J(iii));
-        fprintf('Filling with maximal disk (%d/%d)\n',i,size(BranchNodes{iMask},1));
+        progdlg.Value = (iMask-1 + i/size(BranchNodes{iMask},1))/nMask;
     end
     M1DtoM2D = false(size(Mask2DCell{iMask}));
     ii = find(Mask1DCell{iMask});
@@ -90,8 +96,7 @@ for iMask = 1 : nMask
     Mask2DCell{iMask} = (Mask2DCell{iMask} | M1DtoM2D);
     M1DtoM2DCell{iMask} = M1DtoM2D;
 end
-
-
+close(progdlg);
 
 
 %% ========================================================================
@@ -128,7 +133,9 @@ end
 
 %% ========================================================================
 % Remove 1D mask regions not containing any MA points 
-%==========================================================================
+%==========================================================================    
+msg = 'Removing 1D mask regions without MA points...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
 for iMask = 1 : nMask
     Mask2D = full(Mask2DCell{iMask});
     Mask1D = full(Mask1DCell{iMask});
@@ -143,7 +150,7 @@ for iMask = 1 : nMask
             Mask2D(id) = 1;
             Mask1D(id) = 0;
         end
-        fprintf('Remove 1D mask regions without MA points (%d/%d)\n',i,CC.NumObjects);
+        progdlg.Value = (iMask - 1 + i/CC.NumObjects)/nMask;
     end
     
     Mask2DCell{iMask} = Mask2D;

@@ -23,8 +23,9 @@ if ~strcmpi(status,'off')
         h1 = findobj(app.ViewAxes,'tag','Edge Structure');
 
         if ~isempty(h1) && isempty(app.xyzFun)
-            warndlg('No vertical elevation data are identified.'...
-                ,'Error');
+            msg = 'No vertical elevation data are identified.';
+            uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'OK'},'DefaultOption',1,'Icon','Error');
             SetContourStatus(app,'Off');
             return;
         end
@@ -32,8 +33,9 @@ if ~strcmpi(status,'off')
     end
 
     if strcmpi(status,'Manning''s n') && ~isfield(app.MESH,'Attributes')
-        warndlg('No Manning''n n value data are identified.'...
-            ,'Error');
+        msg = 'No Manning''n n value data are identified.';
+        uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'OK'},'DefaultOption',1,'Icon','Error');
         SetContourStatus(app,'Off');
         return;
     end

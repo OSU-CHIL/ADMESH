@@ -1,4 +1,4 @@
-function MA_pruned = SkeletonPruning_Choi_level1branch_v2(Vx,Vy,MA,rho_pruning,dtheta,dx)
+function MA_pruned = SkeletonPruning_Choi_level1branch_v2(Vx,Vy,MA,rho_pruning,dtheta,dx,UIFigure)
 Debugging = 0;
 
 BranchNodes   = MA.BranchNodes;
@@ -16,6 +16,9 @@ ID_pruned = [];
 dy = dx;
 N = size(Vx,1);
 M = size(Vy,2);
+
+msg = 'Pruning medial axis branches...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
 
 while 1
     nBranch_pruned = 0;
@@ -111,7 +114,7 @@ while 1
     if isequal(BranchNodes,ID_pruned) && isempty(iBranch_pruned)
         break;
     end
-    fprintf('Pruning MA branch (%.2f%%)\n',length(ID_pruned)/length(BranchNodes)*100);
+    progdlg.Value = length(ID_pruned)/length(BranchNodes);
     BranchNodes = ID_pruned;
     ID_pruned = [];
 %     XY = XY_pruned;

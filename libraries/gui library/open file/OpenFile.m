@@ -29,9 +29,8 @@ app = varargin{1};
 %------------------------------------------------------------------------------
 % Get filename & location from user
 %------------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Select a file...';
-app.ProgressBarButton.Icon = '';
-
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
+    'Select a file...','Indeterminate','on');
 % Ask the user to select a file
 f_dummy = warndlg('Select a file...','ADMESH'); %create a dummy figure so that uigetfile doesn't minimize our GUI
 [filename, pathname] = uigetfile(...
@@ -40,9 +39,9 @@ delete(f_dummy); % delete the dummy figure
 
 % If user cancels
 if filename == 0
-    app.ProgressBarButton.Text = 'Ready.';
     return
 end
+close(progdlg);
 
 %------------------------------------------------------------------------------
 % Determine the type of file we're reading in
@@ -66,8 +65,9 @@ switch ext
         [app,status] = ReadMat([pathname filename],app);
         
         if status == 0
-            app.ProgressBarButton.Text = 'Ready.'; drawnow;
-            errordlg('There was an error reading in the file.','ADMESH')
+            msg = 'There was an error reading in the file.';
+            uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'OK'},'DefaultOption',1,'Icon','Error');
             return
         end
         
@@ -93,8 +93,9 @@ switch ext
         [app.MESH,~,status] = Read14File([pathname filename],app);
         
         if status == 0
-            app.ProgressBarButton.Text = 'Ready.'; drawnow;
-            errordlg('There was an error reading in the file.','ADMESH')
+            msg = 'There was an error reading in the file.';
+            uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'OK'},'DefaultOption',1,'Icon','Error');
             return
         end
 
@@ -119,21 +120,20 @@ switch ext
         [app.MESH,~,status] = Read_2DM([pathname filename]);
         
         if status == 0
-            app.ProgressBarButton.Text = 'Ready.'; drawnow;
-            errordlg('There was an error reading in the file.','ADMESH')
+            msg = 'There was an error reading in the file.';
+            uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'OK'},'DefaultOption',1,'Icon','Error');
             return
         end
 
         % Convert to cartesian coordinates if needed.
         app.MESH   = CoordinateConversion(app,app.MESH,'auto');
-
-        app.ProgressBarButton.Text = 'Ready.'; drawnow;
         
     case '.shp'
         
-        msg = 'Do you want to create a file to save settings?';
+        msg = 'Do you want to create a .mat file to save ADMESH settings?';
         choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
-            'Options',{'Yes','No'},'DefaultOption',1,'Icon','Warning');
+            'Options',{'Yes','No'},'DefaultOption',1,'Icon','question');
         if strcmpi(choice,'yes')
             [file, path] = uiputfile(...
                 {'*.mat','Files (*.mat)'},'Select a file to save settings');
@@ -161,8 +161,9 @@ switch ext
         end
         
         if status == 0
-            app.ProgressBarButton.Text = 'Ready.'; drawnow;
-            errordlg('There was an error reading in the file.','ADMESH')
+            msg = 'There was an error reading in the file.';
+            uiconfirm(app.UIFigure,msg,'ADMESH',...
+                'Options',{'OK'},'DefaultOption',1,'Icon','Error');
             return
         end
         

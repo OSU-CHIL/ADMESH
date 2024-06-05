@@ -330,8 +330,10 @@ if strcmp(bathymetry_included, 'Yes')
     % Check to make sure file is still there
     if(fid < 0)
         
-        warndlg('Did you move this file? It''s no longer there','Error');
-        
+        msg = 'Did you move this file? It''s no longer there';
+        uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+
         uiStatusBar('Ready')
 
         mesh = [];
@@ -345,7 +347,9 @@ if strcmp(bathymetry_included, 'Yes')
     
     if( nVerts_bathy{1}-nVerts ~= 0 || nElems_bathy{1}-nElems ~= 0 )
         
-        warndlg('The dimensions of bathymetry file do not match the 2dm file.','Error');
+        msg = 'The dimensions of bathymetry file do not match the 2dm file.';
+        uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'OK'},'DefaultOption',1,'Icon','Error');
         
         uiStatusBar('Ready')
 
@@ -373,7 +377,10 @@ if strcmp(bathymetry_included, 'Yes')
         
     catch
         
-        warndlg('There is a problem reading this file.','Error');
+        msg = 'There is a problem reading this file.';
+        uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+        
         uiStatusBar('Ready')
         mesh = [];
         return

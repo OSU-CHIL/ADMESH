@@ -4,13 +4,18 @@ function ExtractChannelsLandSubdomain(app,event)
 if strcmpi(event,'firstcall')
     filename = app.ElevationDataFilename;
     if isempty(filename) || isempty(app.xyzFun)
-        warndlg('No elevation data is read.','Error');
+        msg = 'No elevation data is read.';
+        uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'OK'},'DefaultOption',1,'Icon','Error');
         return;
     end
     [~,~,ext] = fileparts(filename);
     
     if ~any(strcmpi(ext,{'.tif','.tiff'}))
-        warndlg('The elevation data should be .tif or .tiff format.','Error');
+        msg = 'The elevation data should be .tif or .tiff format.';
+        uiconfirm(app.UIFigure,msg,'ADMESH',...
+            'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+        return;
     end
     
     PTS = app.PTS;
@@ -30,7 +35,8 @@ if strcmpi(event,'firstcall')
         PlotEdgeStructure(app,.1);
     end
     
-    app.ProgressBarButton.Text = 'Extracting open channels from DEM...'; drawnow;
+    progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
+        'Extracting open channels from DEM...','Indeterminate','on');
     [FD,A] = ExtractOpenChannels(filename);
     app.TTC.FD = FD;
     app.TTC.A = A;
@@ -44,15 +50,19 @@ end
 FD = app.TTC.FD;
 A = app.TTC.A;
 
-app.ProgressBarButton.Text = 'Extracting open channels from DEM...'; drawnow;
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
+    'Extracting open channels from DEM...','Indeterminate','on');
 warnStruct = warning;
 warning('off');
 FL1 = klargestconncomps(STREAMobj(FD,A > app.MinDrainageAreaEditField.Value));
 warning(warnStruct);
 
 if isempty(FL1)
-    warndlg(['There are only 0 connected components in the stream network. ',...
-        'Use smaller threshold to get stream network.'],'Error');
+    msg = ['There are only 0 connected components in the stream network. ',...
+        'Use smaller threshold to get stream network.'];
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+    
     app.TTC.FL = {};
     
     h = findobj(app.ViewAxes,'tag','landchannel');
@@ -80,7 +90,8 @@ end
 app.PTS = PTS;
 
 % Visualize
-app.ProgressBarButton.Text = 'Draw extracted open channels...'; drawnow;
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
+    'Draw extracted open channels...','Indeterminate','on');
 FL2 = cellfun(@(x) [x; nan(1,2)],FL,'UniformOutput',0);
 FL2 = vertcat(FL2{:});
 
@@ -92,5 +103,5 @@ set(h,'tag','landchannel');
 
 app.MainApp.PTS = app.PTS;
 app.MainApp.MinDrainageArea = app.MinDrainageAreaEditField.Value;
-app.ProgressBarButton.Text = 'Ready'; drawnow;
 
+close(progdlg);

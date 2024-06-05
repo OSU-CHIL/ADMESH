@@ -1,4 +1,8 @@
-function MA_new = ConstructMainStream_v3(MA)
+function MA_new = ConstructMainStream_v3(MA,UIFigure)
+
+msg = 'Constructing main stream...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
+
 %% ========================================================================
 % Construct main stream
 %==========================================================================
@@ -128,8 +132,9 @@ for k = 1 : length(NodeEndList)
 
 
     
-    fprintf('Construct main stream (%d/%d)\n',k,length(NodeEndList));
+    progdlg.Value = k/length(NodeEndList);
 end
+close(progdlg);
 
 MergeID1 = MergeID;
 BranchNodes1 = BranchNodes;

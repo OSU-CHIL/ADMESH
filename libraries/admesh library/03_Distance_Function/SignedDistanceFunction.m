@@ -1,4 +1,4 @@
-function [D,gradD] = SignedDistanceFunction(PTS,X,Y,delta,hmax,ProgressBar)
+function [D,gradD] = SignedDistanceFunction(PTS,X,Y,delta,hmax,UIFigure)
 % DistanceFunction - Computes the nearest distance from a background
 % point in (X,Y) to the boundaries in PTS
 %
@@ -30,7 +30,8 @@ function [D,gradD] = SignedDistanceFunction(PTS,X,Y,delta,hmax,ProgressBar)
 %---------------------------------------------------------------------
 
 % Initialize waitbar
-ProgressBar.Text = 'Computing Distance Function.'; drawnow;
+msg = 'Computing Distance Function.';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 % Find Points in Domain
 IN = PointsInDomain3(X,Y,PTS);
@@ -53,7 +54,8 @@ ix = find(D <= hmax);
 p = PTS2PointList(PTS,delta);
 
 % Find the nearest neighbor in p for each point in (X,Y)
-ProgressBar.Text = 'Computing Distance Function..'; drawnow;
+msg = 'Computing Distance Function..';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 % Create nearest neighbor search object
 ns = KDTreeSearcher(vertcat(p(:).xy),'distance','euclidean');
@@ -66,8 +68,9 @@ clear ns
 nsegments = numel(p);   % Total number of segments in p
 l2 = 0;                 % Initialize end index
 
-ProgressBar.Text = 'Computing Distance Function...'; drawnow;
-UpdateProgressBarButton(ProgressBar,1,nsegments);
+msg = 'Computing Distance Function...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg);
+progdlg.Value = 1/nsegments;
 
 for k = 1:nsegments
     
@@ -80,7 +83,7 @@ for k = 1:nsegments
     
     % Check for matches
     if ~any(commonMembers)
-        UpdateProgressBarButton(ProgressBar,k,nsegments); drawnow;
+        progdlg.Value = k/nsegments;
         continue; 
     end
     
@@ -93,11 +96,10 @@ for k = 1:nsegments
     % Compute actual distance to edge segments
     D(nn) = min(distFunSubroutine(X(nn),Y(nn),p(k).xy(:,1),p(k).xy(:,2),id),D(nn));
     
-    UpdateProgressBarButton(ProgressBar,k,nsegments); drawnow;
+    progdlg.Value = k/nsegments;
     
 end
-ProgressBar.Text = '';
-ProgressBar.Icon = '';
+close(progdlg);
 drawnow;
 % Create signed distance function
 D(IN) = -D(IN);

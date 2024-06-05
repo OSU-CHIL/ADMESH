@@ -1,4 +1,8 @@
-function D2MA = DistanceToMA(MA,MaskCell,dd_ID,dx)
+function D2MA = DistanceToMA(MA,MaskCell,dd_ID,dx,UIFigure)
+
+msg = 'Computing distance to Medial Axis...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
+
 %% ========================================================================
 % Separate 1D & 2D area based on local feature size
 %==========================================================================
@@ -72,6 +76,7 @@ for iDD = 1 : size(dd_ID,1)
     
     D2MA(I,J) = D2MA1;
     
-    fprintf('Compute distance to MA (%d/%d)\n',iDD,size(dd_ID,1));
+    progdlg.Indeterminate = 'off';
+    progdlg.Value = iDD/size(dd_ID,1);
 end
 

@@ -4,7 +4,9 @@ function ReorderOpenChannel(app)
 % Check if MESH exists
 %--------------------------------------------------------------------------
 if isempty(app.MESH)
-    warndlg('No MESH data is found.','Error');
+    msg = 'No MESH data is found.';
+    uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
     return;
 end
 
