@@ -32,9 +32,7 @@ ElevationDataFilename = [];
 progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
     'Checking file...','Indeterminate','on');
 
-matData = struct2cell(whos('-file',file));
-
-if ~any(strcmp(matData(1,:),'PTS'))
+if isempty(who('-file',file,'PTS'))
     
     msg = ['No edge structure exists in this file.' ...
         ' Make sure you are selecting the correct file for ADMESH.'];
@@ -57,9 +55,9 @@ end
 %------------------------------------------------------------------------------
 % Load edge structure 
 %------------------------------------------------------------------------------
-if any(strcmp(matData(1,:),'PTS'))
 progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
     'Loading Edge Structure...','Indeterminate','on');
+if ~isempty(who('-file',file,'PTS'))
     
     % Initialize as 0
     PTS = 0;
@@ -96,9 +94,9 @@ end
 %------------------------------------------------------------------------------
 % Load elevation data
 %------------------------------------------------------------------------------
-if any(strcmp(matData(1,:),'xyzFun'))
 progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
     'Loading elevation data...','Indeterminate','on');
+if ~isempty(who('-file',file,'xyzFun'))
     
     % Initialize as 0
     xyzFun = [];
@@ -108,7 +106,7 @@ progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
     
 end
 
-if any(strcmp(matData(1,:),'ElevationDataFilename'))
+if ~isempty(who('-file',file,'ElevationDataFilename'))
     
     % Load filename of elevation data
     load(file, 'ElevationDataFilename')
@@ -119,7 +117,7 @@ end
 %------------------------------------------------------------------------------
 % Load previous settings
 %------------------------------------------------------------------------------
-if any(strcmp(matData(1,:),'Settings'))
+if ~isempty(who('-file',file,'Settings'))
     
     progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
         'Loading settings...','Indeterminate','on');
