@@ -151,6 +151,7 @@ switch ext
         app.MESH       = [];
         
         [app,status] = ReadShapefile([pathname filename],app);
+        CheckExternalBoundary(app);
         
         if ~isempty(app.FilePath)
             PTS = app.PTS;
