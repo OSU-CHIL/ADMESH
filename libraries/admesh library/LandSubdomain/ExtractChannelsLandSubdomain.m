@@ -65,7 +65,7 @@ if isempty(FL1)
     
     app.TTC.FL = {};
     
-    h = findobj(app.ViewAxes,'tag','landchannel');
+    h = findobj(app.UIAxes,'tag','landchannel');
     delete(h);
     return;
 end
@@ -95,9 +95,9 @@ progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',...
 FL2 = cellfun(@(x) [x; nan(1,2)],FL,'UniformOutput',0);
 FL2 = vertcat(FL2{:});
 
-h = findobj(app.ViewAxes,'tag','landchannel');
+h = findobj(app.UIAxes,'tag','landchannel');
 delete(h);
-h = plot(app.ViewAxes,FL2(:,1),FL2(:,2),'b');
+h = plot(app.UIAxes,FL2(:,1),FL2(:,2),'b');
 
 set(h,'tag','landchannel');
 

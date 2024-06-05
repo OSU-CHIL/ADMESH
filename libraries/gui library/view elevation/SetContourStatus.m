@@ -12,7 +12,6 @@ if length(varargin) == 1
 else
     status = app.ContoursDropDown.Value;
 end
-app.ViewAxes = app.UIAxes;
 
 %--------------------------------------------------------------------------
 % Check for data
@@ -20,7 +19,7 @@ app.ViewAxes = app.UIAxes;
 if ~strcmpi(status,'off')
     if strcmpi(status,'bathy/topo')
 
-        h1 = findobj(app.ViewAxes,'tag','Edge Structure');
+        h1 = findobj(app.UIAxes,'tag','Edge Structure');
 
         if ~isempty(h1) && isempty(app.xyzFun)
             msg = 'No vertical elevation data are identified.';
@@ -55,8 +54,8 @@ switch lower(status)
         cmap_name = app.ColormapDropDown.Value;
                         
         % Are we displaying elevation nodes or triangulated elevation
-        h1 = findobj(app.ViewAxes,'tag','Edge Structure');
-        h2 = findobj(app.ViewAxes,'tag','Mesh');
+        h1 = findobj(app.UIAxes,'tag','Edge Structure');
+        h2 = findobj(app.UIAxes,'tag','Mesh');
         
         app.ProgressBarButton.Text = 'Setting colormap...';
 
@@ -85,7 +84,7 @@ switch lower(status)
             if isa(app.xyzFun,'scatteredInterpolant')
                 
                 
-                delete(findobj(app.ViewAxes,'tag','elevation plot'))
+                delete(findobj(app.UIAxes,'tag','elevation plot'))
                 
                 % Get x & y limits
                 xmin = min(vertcat(app.PTS.Poly(:).x));
@@ -115,11 +114,11 @@ switch lower(status)
                 z = Field(ixy)';
                 
                 % Designate colormap
-                colormap(app.ViewAxes,cmap)
+                colormap(app.UIAxes,cmap)
                 
                 % Plot points
                 eH = patch(...
-                    'parent',app.ViewAxes,...
+                    'parent',app.UIAxes,...
                     'xdata',[x;x],...
                     'ydata',[y;y],...
                     'cdata',[z;z],...
@@ -133,8 +132,8 @@ switch lower(status)
                 
             else
                 
-                delete(findobj(app.ViewAxes,'tag','elevation plot'))
-                delete(findobj(app.ViewAxes,'tag','colorbar'))
+                delete(findobj(app.UIAxes,'tag','elevation plot'))
+                delete(findobj(app.UIAxes,'tag','colorbar'))
                 
                % Get x & y limits
                 xmin = min(vertcat(app.PTS.Poly(:).x));
@@ -166,14 +165,14 @@ switch lower(status)
                 % Designate colormap
                 
                 
-                eH = imagesc(app.ViewAxes,x(~ix),y(~iy),Field','tag','elevation plot');
-                colormap(app.ViewAxes,cmap);
-                axis(app.ViewAxes,'xy');
+                eH = imagesc(app.UIAxes,x(~ix),y(~iy),Field','tag','elevation plot');
+                colormap(app.UIAxes,cmap);
+                axis(app.UIAxes,'xy');
                 
                 % Put elevation plot at the bottom
-                for i = 1 : length(app.ViewAxes.Children)
-                    if strcmpi(app.ViewAxes.Children(i).Tag,'elevation plot')
-                        app.ViewAxes.Children = app.ViewAxes.Children([1:i-1,i+1:end,i]);
+                for i = 1 : length(app.UIAxes.Children)
+                    if strcmpi(app.UIAxes.Children(i).Tag,'elevation plot')
+                        app.UIAxes.Children = app.UIAxes.Children([1:i-1,i+1:end,i]);
                         break;
                     end
                 end
@@ -215,16 +214,16 @@ switch lower(status)
             faces = app.MESH.ConnectivityList;              % connectivity list
             
             trisurf(faces,verts(:,1),verts(:,2),Field,...
-                'Parent',app.ViewAxes,...
-                'Tag','Mesh Topo',...
+                'Parent',app.UIAxes,...
+                'Tag','Mesh',...
                 'EdgeColor','none',...
                 'FaceColor','interp');
 
-            colormap(app.ViewAxes,cmap);
+            colormap(app.UIAxes,cmap);
 
         end
 
-        colorbar(app.ViewAxes,'Tag','Mesh');
+        colorbar(app.UIAxes,'Tag','Mesh');
 
     case 'off'
         
@@ -232,13 +231,13 @@ switch lower(status)
         app.ColormapDropDown.Enable = 'off';
         
         % Are we displaying elevation nodes or triangulated elevation
-        h1 = findobj(app.ViewAxes,'tag','Edge Structure');
-        h2 = findobj(app.ViewAxes,'tag','Mesh Topo');
+        h1 = findobj(app.UIAxes,'tag','Edge Structure');
+        h2 = findobj(app.UIAxes,'tag','Mesh');
         
         if ishandle(h1) == 1
             
-            delete(findobj(app.ViewAxes,'tag','elevation plot'))
-            delete(findobj(app.ViewAxes,'tag','colorbar'))
+            delete(findobj(app.UIAxes,'tag','elevation plot'))
+            delete(findobj(app.UIAxes,'tag','colorbar'))
             
         elseif ishandle(h2) == 1
             
@@ -246,7 +245,7 @@ switch lower(status)
             PlotMesh(app,.1);
         end
 
-        colorbar(app.ViewAxes,'off');
+        colorbar(app.UIAxes,'off');
 end
 
 app.ProgressBarButton.Text = 'Ready';

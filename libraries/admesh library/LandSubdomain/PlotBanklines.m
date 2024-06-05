@@ -20,10 +20,10 @@ for i = 1 : length(CS)
     
 end
 
-h = findobj(app.ViewAxes,'tag','banklines');
+h = findobj(app.UIAxes,'tag','banklines');
 delete(h);
 
 c = [150, 75, 0]/255;
-h = plot(app.ViewAxes,x,y,'Color',c);
+h = plot(app.UIAxes,x,y,'Color',c);
 set(h,'tag','banklines');
 
