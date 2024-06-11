@@ -44,9 +44,29 @@ close(progdlg);
 [~,~,ext] = fileparts(filename);
 
 % Clear window
-status = ClearWindow(app);
-if status == 0
-    return;
+if strcmp(ext,'.shp') && isfield(app.PTS,'Poly') && ~isempty(app.PTS.Poly)
+    msg = ['Existing boundaries are found. ',...
+        'Do you want to replace it with the new .shp file or ',...
+        'add to the .shp file to existing boundaries?'];
+    choice = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'Replace','Add','Cancel'},'DefaultOption',1,'Icon','Warning');
+
+    switch choice
+        case 'Replace'
+            status = ClearWindow(app);
+            if status == 0
+                return;
+            end
+        case 'Add'
+            
+        case 'Cancel'
+            return;
+    end
+else
+    status = ClearWindow(app);
+    if status == 0
+        return;
+    end
 end
 
 switch ext
@@ -146,7 +166,6 @@ switch ext
         
         % Reset domain variables
         app.FilePath   = [path file];
-        app.PTS        = [];
         app.xyzFun     = [];
         app.MESH       = [];
         
