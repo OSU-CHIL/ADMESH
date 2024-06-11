@@ -112,7 +112,7 @@ for k = 1:nConstraints
         
         set(h,'tag','Mesh Constraint')
 
-    elseif any(app.MESH.Constraints(k).num == [18 6]); % Channel Constraints
+    elseif any(app.MESH.Constraints(k).num == [18 17 19]); % Channel Constraints
                 
         Nodes = app.MESH.Constraints(k).nodeStr;
 
