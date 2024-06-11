@@ -80,7 +80,7 @@ end
 %--------------------------------------------------------------------------
 % Begin ADmesh
 %--------------------------------------------------------------------------
-t=cputime; % Start Timer for ADmesh
+t=tic; % Start Timer for ADmesh
 
 %--------------------------------------------------------------------------
 % Create structured background mesh
@@ -188,7 +188,7 @@ PlotMesh(app,.1)
 %--------------------------------------------------------------------------
 % Convert CPU time to hours minutes seconds time string
 %--------------------------------------------------------------------------
-time_string = seconds2HrMinSec(cputime-t);
+time_string = seconds2HrMinSec(toc(t));
 
 %--------------------------------------------------------------------------
 % Update status bar
