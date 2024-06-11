@@ -69,7 +69,8 @@ end
 %--------------------------------------------------------------------------
 % Get the file name from the user
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Select a (.xyz) or (.asc) file....'; drawnow;
+msg = 'Select a (.xyz) or (.asc) file....';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 [file, path] = uigetfile({'*.xyz;*.asc;*.tiff;*.tif','Elevation Files (*.xyz,*.asc,*.tiff,*.tif)'},...
     'Select a file',cd);
@@ -78,14 +79,14 @@ app.ProgressBarButton.Text = 'Select a (.xyz) or (.asc) file....'; drawnow;
 % Did the user make a selection?
 %--------------------------------------------------------------------------
 if ~file
-    app.ProgressBarButton.Text = 'Ready'; drawnow;
     return
 end
 
 %--------------------------------------------------------------------------
 % Determine the file type
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Reading in data....'; drawnow;
+msg = 'Reading in data....';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 % Get file extension
 [~,~,ext] = fileparts([path file]);
@@ -99,7 +100,8 @@ if strcmp(ext,'.xyz')
     
     try
         
-        app.ProgressBarButton.Text = 'Reading in elevation data...'; drawnow;
+        msg = 'Reading in elevation data...';
+        progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
         xyz = textscan(fid, '%f %f %f'); % Read in data
         
         fclose(fid); % Close file
@@ -118,7 +120,7 @@ if strcmp(ext,'.xyz')
         % Display error message
         errordlg(ERRORSTRING,DLGNAME)
         
-        app.ProgressBarButton.Text = 'Ready'; drawnow;
+        close(progdlg);
         
         return
         
@@ -132,7 +134,8 @@ if strcmp(ext,'.xyz')
         [xyz(:,1),xyz(:,2)] = Geo2Meters(xyz(:,1),xyz(:,2),PTS.cpplon,PTS.cpplat);
     end
     
-    app.ProgressBarButton.Text = 'Creating elevation interpolant function...'; drawnow;
+    msg = 'Creating elevation interpolant function...';
+    progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
     xyzFun = scatteredInterpolant(xyz(:,1),xyz(:,2),xyz(:,3),'linear','nearest');
 end
 
@@ -147,7 +150,8 @@ if strcmp(ext,'.asc')
         fid=fopen([path,file],'r');
         
         % Read in header
-        app.ProgressBarButton.Text = 'Reading in elevation data...'; drawnow;
+        msg = 'Reading in elevation data...';
+        progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
         textHeader = textscan(fid, '%s %f', 6);
         
         % Check for optional no data value
@@ -232,20 +236,21 @@ if strcmp(ext,'.asc')
         [x,y] = meshgrid(x,fliplr(y));
                
     catch
-        app.ProgressBarButton.Text = 'Ready'; drawnow;
         return
     end
     
     % Convert coordinates
     if isfield(PTS,'cpplon') && ~isempty(PTS.cpplon)
-        app.ProgressBarButton.Text = 'Converting to cartesian coordinate system...'; drawnow;
+        msg = 'Converting to cartesian coordinate system...';
+        progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
         [x,y] = Geo2Meters(x,y,PTS.cpplon,PTS.cpplat);
     end
     
     %-------------------------------------------------------------------------
     % Generate scattered interpolant function for bathymetry
     %--------------------------------------------------------------------------
-    app.ProgressBarButton.Text = 'Creating an interpolant function for the elevation data set...'; drawnow;
+    msg = 'Creating an interpolant function for the elevation data set...';
+    progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
     switch choice
         case 'In-paint NaNs'
@@ -261,7 +266,8 @@ end
 
 if any(strcmpi(ext,{'.tiff','.tif'}))
     
-    app.ProgressBarButton.Text = 'Reading in elevation data...'; drawnow;
+    msg = 'Reading in elevation data...';
+    progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
     
     Z = imread([path,file]);
     Z = double(Z);
@@ -275,7 +281,8 @@ if any(strcmpi(ext,{'.tiff','.tif'}))
     y = linspace(ax(1,2),ax(2,2),size(Z,1));
     [X,Y] = meshgrid(x,y);
     
-    app.ProgressBarButton.Text = 'Creating an interpolant function for the elevation data set...'; drawnow;
+    msg = 'Creating an interpolant function for the elevation data set...';
+    progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
     I = ~isnan(Z);
     xyzFun = scatteredInterpolant(X(I),Y(I),Z(I),'nearest','nearest');
     
@@ -304,8 +311,5 @@ if strcmp(choice,'Replace') && ~isempty(app.FilePath)
         end
     end
 end
-
-app.ProgressBarButton.Text = 'Ready'; drawnow;
-
 
 end

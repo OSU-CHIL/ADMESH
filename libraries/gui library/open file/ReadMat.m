@@ -38,8 +38,6 @@ if isempty(who('-file',file,'PTS'))
         ' Make sure you are selecting the correct file for ADMESH.'];
     uiconfirm(app.UIFigure,msg,'ADMESH',...
         'Options',{'OK'},'DefaultOption',1,'Icon','Error');
-    
-    app.ProgressBarButton.Text = 'Ready'; drawnow;
 
     status = 0;
     
@@ -71,9 +69,7 @@ if ~isempty(who('-file',file,'PTS'))
         msg = 'The edge structure has missing fields.';
         uiconfirm(app.UIFigure,msg,'ADMESH',...
             'Options',{'OK'},'DefaultOption',1,'Icon','Error');
-        
-        app.ProgressBarButton.Text = 'Ready'; drawnow;
-        
+
         PTS = [];
         xyzFun = [];
         status = 0;

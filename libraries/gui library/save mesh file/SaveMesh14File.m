@@ -43,13 +43,13 @@ end
 %--------------------------------------------------------------------------
 % Ask user for file name
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Save Mesh File As....'; drawnow;
+msg = 'Save Mesh File As....';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 [file,path] = uiputfile('*.14','Save Mesh File As');
 
 % If user cancels
 if ~file
-    app.ProgressBarButton.Text = 'Ready'; drawnow;
     return
 end
 
@@ -75,7 +75,8 @@ if isfield(MESH,'cpplon') && ~isempty(MESH.cpplon)
     
 end
 
-app.ProgressBarButton.Text = 'Creating file....'; drawnow;
+msg = 'Creating file....';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 %--------------------------------------------------------------------------
 % Open file and begin writing
@@ -98,14 +99,16 @@ fprintf(fid,'%i %i\n',[NE ; NP]);
 %--------------------------------------------------------------------------
 % Write points
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Writing nodal coordinates....'; drawnow;
+msg = 'Writing nodal coordinates....';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 fprintf(fid,'%10.0i %5.10e %5.10e %5.10e\n', [(1:NP)', MESH.Points]');
 
 %--------------------------------------------------------------------------
 % Write triangulation
 %--------------------------------------------------------------------------
-app.ProgressBarButton.Text = 'Writing connectivity list....'; drawnow;
+msg = 'Writing connectivity list....';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 fprintf(fid,'%5.0i %4.0i %6.0i %6.0i %6.0i\n',...
     [(1:NE)', 3*ones(NE,1), MESH.ConnectivityList]');
@@ -184,8 +187,9 @@ if isfield(MESH,'Constraints')
     %----------------------------------------------------------------------
     if any([MESH.Constraints.num] ~= -1)
         
-        app.ProgressBarButton.Text = 'Writing normal flow specified boundary data....'; drawnow;
-
+        msg = 'Writing normal flow specified boundary data....';
+        progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
+        
         % find all indices
         ix = find([MESH.Constraints.num] ~= -1);
         
@@ -300,8 +304,12 @@ end
 %--------------------------------------------------------------------------
 fclose(fid);
 
-app.ProgressBarButton.Text = 'Mesh file complete!'; drawnow;
+close(progdlg);
+msg = 'Mesh file complete!';
+uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','info');
+
 pause(1);
 
-app.ProgressBarButton.Text = 'Ready'; drawnow;
+
 

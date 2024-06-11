@@ -218,7 +218,9 @@ e = s + 10;
 % Determine appropraite frequency for updating status bar
 freq = round(nedges/100);
 
-UpdateProgressBarButton(app.ProgressBarButton,1,nedges);
+msg = 'Writing kml file...';
+progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg);
+progdlg.Value = 1/nedges;
 
 % Loop over each edge and prep for write out
 for k = 1:nedges
@@ -253,7 +255,7 @@ for k = 1:nedges
     e = s + 10;
     
     if(mod(k,freq ) == 0)
-        UpdateProgressBarButton(app.ProgressBarButton,k,nedges);
+        progdlg.Value = k/nedges;
     end
     
 end
@@ -261,15 +263,12 @@ end
 % Append footer
 textOut(end-1:end) = Footer;
 
-app.ProgressBarButton.Text = '';
-app.ProgressBarButton.Icon = '';
-drawnow;
-
 %--------------------------------------------------------------------------
 % Open file and write
 %--------------------------------------------------------------------------
 
-app.ProgressBarButton.Text = 'Writing kml file...';
+msg = 'Writing kml file...';
+uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 % Open file
 fid = fopen([path file],'w');
@@ -278,7 +277,5 @@ fprintf(fid,'%s\n',textOut{:});
 
 % Close file
 fclose(fid);
-
-app.ProgressBarButton.Text = 'Ready';
 
 end

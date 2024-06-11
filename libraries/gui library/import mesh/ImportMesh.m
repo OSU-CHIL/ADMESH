@@ -26,14 +26,14 @@ if nargin == 1
     
     app = varargin{1};
     
-    app.ProgressBarButton.Text = 'Select a file...';
+    msg = 'Select a file...';
+    progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
     
     % Ask the user to select a file
     [filename, pathname] = uigetfile(...
         {'*.14;*.grd;*.2dm','Grid Files (*.14,*.grd,*.2dm)'},'Select a file');
     
     if filename == 0
-        app.ProgressBarButton.Text = 'Ready';
         return
     end
     

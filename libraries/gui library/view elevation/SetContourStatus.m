@@ -57,8 +57,9 @@ switch lower(status)
         h1 = findobj(app.UIAxes,'tag','Edge Structure');
         h2 = findobj(app.UIAxes,'tag','Mesh');
         
-        app.ProgressBarButton.Text = 'Setting colormap...';
-
+        msg = 'Setting colormap...';
+        progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
+        
         if ishandle(h1) == 1 % Plot elevation nodes
             
             Field = -app.xyzFun.Values;
@@ -78,7 +79,8 @@ switch lower(status)
                 
             end
             
-            app.ProgressBarButton.Text = 'Preparing to display...';
+            msg = 'Preparing to display...';
+            progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
             
             % Plot
             if isa(app.xyzFun,'scatteredInterpolant')
@@ -179,7 +181,7 @@ switch lower(status)
                 
             end
             
-            app.ProgressBarButton.Text = 'Ready';
+            close(progdlg);
             
         elseif ishandle(h2) == 1
             
@@ -206,7 +208,8 @@ switch lower(status)
                 
             end
             
-            app.ProgressBarButton.Text = 'Preparing to display...';
+            msg = 'Preparing to display...';
+            progdlg = uiprogressdlg(app.UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
             
             delete(h2);
 
@@ -249,8 +252,6 @@ switch lower(status)
 
         colorbar(app.UIAxes,'off');
 end
-
-app.ProgressBarButton.Text = 'Ready';
 
     function y = landcolor(n)
         %LANDCOLOR Land colormap

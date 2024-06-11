@@ -169,10 +169,4 @@ DisplayMeshInfo(app);
 app.xLimits = get(pH,'xlim');    % x-axis limits
 app.yLimits = get(pH,'ylim');    % y-axis limits
 
-app.ProgressBarButton.Text = 'Ready.'; drawnow;
-
-% guidata(gui.Window,gui);
-
-
-
 end
