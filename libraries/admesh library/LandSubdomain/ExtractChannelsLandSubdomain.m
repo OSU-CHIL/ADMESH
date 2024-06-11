@@ -98,6 +98,7 @@ FL2 = vertcat(FL2{:});
 h = findobj(app.UIAxes,'tag','landchannel');
 delete(h);
 h = plot(app.UIAxes,FL2(:,1),FL2(:,2),'b');
+drawnow;
 
 set(h,'tag','landchannel');
 

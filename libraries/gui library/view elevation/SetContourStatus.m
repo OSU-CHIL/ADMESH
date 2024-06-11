@@ -131,6 +131,8 @@ switch lower(status)
                     'tag','elevation plot');
                 
                 uistack(eH,'bottom')
+
+                drawnow;
                 
             else
                 
