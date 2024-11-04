@@ -5,7 +5,7 @@ ADMESH+ is a two-dimensional, automatic unstructured mesh generator for shallow 
 
 ## NOTES:
 1. ADMESH+ GUI is originally developed with GUI Layout Toolbox, and now is migrating to MATLAB App Designer. As the migration has not completed yet, a few features are not operational in this release. These features include:
-   1. **Fix low quality elements with GUI.** The user has the ability to ``fix" low quality elements by manually moving a node after the mesh is generated. Click on the red triangle to define the lower limit of an acceptable mesh quality, and then click the red triangle with a "+" symbol to locate each element below the limit. Once a "bad" element is located, click the blue triangle button to manually adjust the node placement.
+   1. **Fix low quality elements with GUI.** The user has the ability to "fix" low quality elements by manually moving a node after the mesh is generated. Click on the red triangle to define the lower limit of an acceptable mesh quality, and then click the red triangle with a "+" symbol to locate each element below the limit. Once a "bad" element is located, click the blue triangle button to manually adjust the node placement.
    2. **Subdomain mesh feature.**
 2. 
 
