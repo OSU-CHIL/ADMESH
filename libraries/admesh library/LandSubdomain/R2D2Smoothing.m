@@ -428,39 +428,64 @@ for iBasin = 1 : nBasins
         z2 = -xyzFun(x2',y2');
         z2 = z2';
         
+        %------------------------------------------------------------------
         % Apply cubic spline smoothing until there is no upslope
-        RMSE = 0.1;
+        %------------------------------------------------------------------
+        % Set weights
+        w = ones(length(r2),1);
+        w([1 end]) = 1e8;
+
+        % Apply bisection method to find monotone decreasing curve
+        SP1 = 0;
+        SP2 = 1;
+        
         while 1
-            PI = ComputePathCurvature([r2(:), z2(:)],[r2([1 end])' z2([1 end])'],RMSE,'warning','off');
-            PI.RMSE = RMSE;
-            if max(PI.dy(PI.p)) < 0
+            if SP2 - SP1 < 1e-16
+                if strcmpi(WARN,'on')
+                    warning(['Iteration cannot reach to the stopping criterion. ',...
+                        'It is stopped and result with RMSE closest to the given value.']);
+                end
                 break;
             end
+            SmoothingParam = (SP1 + SP2)/2;
+
+            z3 = csaps(r2,z2,SmoothingParam,r2,w);
+            z3([1 end]) = z2([1 end]);
+
+            % Keep raw DEM if boundary is lower than channel (not sure
+            % why/when it happens)
             if z2(1) <= z2(end)
                 break;
             end
 
-            RMSE = RMSE+0.1;
+            % Stop if a monotone decreasing curve is obtained
+            if max(diff(z3)) > 0
+                SP2 = SmoothingParam;
+            else
+                break;
+            end
         end
-        PIs{i} = PI;
+        
+        %------------------------------------------------------------------
+        % Store xy-coordinates and smoothed DEM
+        %------------------------------------------------------------------
         DataSets{i}.x = x2;
         DataSets{i}.y = y2;
+        DataSets{i}.z = z3;
     end
 
     % Remove empty sets
-    I = cellfun(@(x) isempty(x),PIs);
-    PIs(I) = [];
+    I = cellfun(@(x) isempty(x),DataSets);
     DataSets(I) = [];
 
     % Set points to be used in interpolation
     x1 = [];
     y1 = [];
     z1 = [];
-    for i = 1 : length(PIs)
-        PI = PIs{i};
+    for i = 1 : length(DataSets)
         x1 = [x1; DataSets{i}.x(:)];
         y1 = [y1; DataSets{i}.y(:)];
-        z1 = [z1; PI.sy(PI.p)];
+        z1 = [z1; DataSets{i}.z(:)];
     end
 
     x1 = [x1; Cx; Bx];
