@@ -540,5 +540,6 @@ Znew(isnan(Znew)) = Z(isnan(Znew));
 app.xyzFun_new = app.xyzFun;
 app.xyzFun_new.Values = Znew;
 app.DEMDropDown.Enable = 'on';
+app.SaveR2D2DEMButton.Enable = 'on';
 
 PlotR2D2Result(app);
