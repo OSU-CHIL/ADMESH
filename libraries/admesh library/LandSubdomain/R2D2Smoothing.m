@@ -440,6 +440,13 @@ for iBasin = 1 : nBasins
         SP2 = 1;
         
         while 1
+            % Keep raw DEM if boundary is lower than channel (not sure
+            % why/when it happens)
+            if z2(1) <= z2(end)
+                z3 = z2;
+                break;
+            end
+            
             if SP2 - SP1 < 1e-16
                 if strcmpi(WARN,'on')
                     warning(['Iteration cannot reach to the stopping criterion. ',...
@@ -449,20 +456,21 @@ for iBasin = 1 : nBasins
             end
             SmoothingParam = (SP1 + SP2)/2;
 
-            z3 = csaps(r2,z2,SmoothingParam,r2,w);
-            z3([1 end]) = z2([1 end]);
+            z3_new = csaps(r2,z2,SmoothingParam,r2,w);
+            z3_new([1 end]) = z2([1 end]);
 
-            % Keep raw DEM if boundary is lower than channel (not sure
-            % why/when it happens)
-            if z2(1) <= z2(end)
-                break;
-            end
 
             % Stop if a monotone decreasing curve is obtained
-            if max(diff(z3)) > 0
+            if max(diff(z3_new)) > 0
                 SP2 = SmoothingParam;
             else
-                break;
+                if max(abs(z3_new - z3)) < 1e-3
+                    z3 = z3_new;
+                    break;
+                end
+
+                z3 = z3_new;
+                SP1 = SmoothingParam;
             end
         end
         
