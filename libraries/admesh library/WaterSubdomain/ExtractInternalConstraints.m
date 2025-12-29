@@ -89,7 +89,7 @@ MA = MA_branch;
 %% ========================================================================
 % Pruning corners
 %==========================================================================
-MA_pruned = SkeletonPruning_Choi_level1branch_v2(Vxg,Vyg,MA,pruning_rho,pruning_theta,dx,app.UIFigure);
+MA_pruned = SkeletonPruningL1Branch(Vxg,Vyg,MA,pruning_rho,pruning_theta,dx,app.UIFigure);
 
 %% ========================================================================
 % Compute distance map to medial axis
@@ -315,7 +315,7 @@ MA = MA_branch;
 %% ========================================================================
 % Pruning corners
 %==========================================================================
-MA_pruned = SkeletonPruning_Choi_level1branch_v2(Vxg,Vyg,MA,pruning_rho,pruning_theta,dx,app.UIFigure);
+MA_pruned = SkeletonPruningL1Branch(Vxg,Vyg,MA,pruning_rho,pruning_theta,dx,app.UIFigure);
 
 %% ========================================================================
 % Compute distance map to medial axis
@@ -425,13 +425,13 @@ pgon_W2D = polyshape(temp_x,temp_y);
 % Connect branches to Water2D boundary
 %==========================================================================
 MA = MA_1D;
-MA_connected = ConnectMA1Dto2DArea_v2(MA,W2D_boundaryID,2,app.UIFigure);
+MA_connected = ConnectMA1Dto2DArea(MA,W2D_boundaryID,2,app.UIFigure);
 MA_connected = PruneLevel1BranchByLength(dx,MA_connected,length_min,MA_connected.FlagConnected2D);
 MA_connected = RemoveJointDuplicates(MA_connected);
 
 MA = MA_LandBarrier;
 if ~isempty(MA_LandBarrier.BranchNodes)
-MA_connectedLand = ConnectMA1Dto2DArea_v2(MA,W2D_boundaryID,2,app.UIFigure);
+MA_connectedLand = ConnectMA1Dto2DArea(MA,W2D_boundaryID,2,app.UIFigure);
 MA_connectedLand = PruneLevel1BranchByLength(dx,MA_connectedLand,length_min,MA_connectedLand.FlagConnected2D);
 MA_connectedLand = RemoveJointDuplicates(MA_connectedLand);
 else
@@ -442,11 +442,11 @@ end
 % Construct mainstreams
 %==========================================================================
 MA = MA_connected;
-MA_1D_mainstream = ConstructMainStream_v3(MA,app.UIFigure);
+MA_1D_mainstream = ConstructMainStream(MA,app.UIFigure);
 MA_1D_mainstream = RemoveJointDuplicates(MA_1D_mainstream);
 
 MA = MA_connectedLand;
-MA_1D_mainstreamLand = ConstructMainStream_v3(MA,app.UIFigure);
+MA_1D_mainstreamLand = ConstructMainStream(MA,app.UIFigure);
 MA_1D_mainstreamLand = RemoveJointDuplicates(MA_1D_mainstreamLand);
 
 %% ========================================================================

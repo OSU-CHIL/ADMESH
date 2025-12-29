@@ -152,12 +152,6 @@ for k = 1:niter
             warning([...
                 'The routine ''delaunayTriangulation'' results more/less points.',...
                 'As a temporal solution, modify the variable dt so that match to original p.']);
-            %                 id_p = (~ismember(dt.Points,p,'rows'));
-            %                 dt.Points = p;
-            
-            %                 warning([...
-            %                     'The routine ''delaunayTriangulation'' results more/less points.',...
-            %                     'As a temporal solution, replace original p with Points from ''delaunayTriangulation''.']);
             p = dt.Points;
             pold = p;
             t = dt.ConnectivityList;
@@ -266,16 +260,13 @@ for k = 1:niter
         cXY = struct2table(PTS.Constraints,'AsArray',true);
         cXY = cXY.xy;
 
-        [Vx,Vy,D] = Compute8SSED_v3(cXY,p(id_wc,1),p(id_wc,2),hmin);
-%         [~,~,~,XY1,XY2] = Compute8SSED_v3({p(1:nC,:)},p(id_wc,1),p(id_wc,2),hmin);
+        [Vx,Vy,D] = Compute8SSED(cXY,p(id_wc,1),p(id_wc,2),hmin);
         [~,~,~,XY1,XY2] = VectorDistanceTransform(cXY,p(id_wc,:));
         D1 = sqrt(sum((XY1 - XY2).^2,2));
         id_wc_sub = find(abs(D) > 0 & abs(D) < hmin*0.5 &...
             ~isnan(D) & ~isinf(D) & D1 > hmin*2);
         id_wc = id_wc(id_wc_sub);
-%         p_add_wc = p(id_wc,:) + [Vx(id_wc_sub), Vy(id_wc_sub)];
         p_add_wc = (XY1+XY2)/2;
-
         p_add_wc = p_add_wc(id_wc_sub,:);
 
         
@@ -327,12 +318,10 @@ for k = 1:niter
         id_freePoints = setdiff(id_freePoints,id_wc);
         id_new = [(1:nC)'; id_wc(:); id_freePoints(:)];
         p = p(id_new,:);
-%         pold = pold(id_new,:);
 
         [~,C] = ismember(C,id_new);
 
         nC = nC+length(id_wc);
-%         pold = p;
         N = size(p,1);
         in = ((nC+1):N)'; % Vector of non-pfix indices
 
@@ -370,7 +359,7 @@ for k = 1:niter
         cXY = cXY.xy;
         cXY = vertcat({[PTS.Poly.x(:),PTS.Poly.y(:)]}, cXY(:));
         
-        [Vx,Vy,D] = Compute8SSED_v3(cXY,p(id_wc,1),p(id_wc,2),hmin);
+        [Vx,Vy,D] = Compute8SSED(cXY,p(id_wc,1),p(id_wc,2),hmin);
         id_wc_sub = abs(D) > 0 & abs(D) < hmin*0.5 & ~isnan(D) & ~isinf(D);
         p(id_wc(id_wc_sub),:) = p(id_wc(id_wc_sub),:) + [Vx(id_wc_sub),Vy(id_wc_sub)];
 %         p(id_wc(~id_wc_sub),:) = p(id_wc(~id_wc_sub),:) - deltat*Ftot_nC(~id_wc_sub,:)*0.01;
@@ -388,16 +377,12 @@ for k = 1:niter
         id_rm = setdiff(id_rm,1:nC);
         cXY = struct2table(PTS.Constraints,'AsArray',true);
         cXY = cXY.xy;
-        % temp = vertcat({[PTS.Poly.x,PTS.Poly.y]}, temp(:));
         
-        [~,~,D] = Compute8SSED_v3(cXY,p(id_rm,1),p(id_rm,2),hmin*0.25);
-%         [~,~,~,XY1,XY2] = Compute8SSED_v4({p(1:nC,:)},C,p(id_rm,1),p(id_rm,2),hmin);
-%         D1 = sqrt(sum((XY1 - XY2).^2,2));
+        [~,~,D] = Compute8SSED(cXY,p(id_rm,1),p(id_rm,2),hmin*0.25);
         
         id2 = abs(D) > 0 & abs(D) < hmin*0.5 & ~isnan(D) & ~isinf(D);
         id_rm = id_rm(id2);
         p(id_rm,:) = [];
-%         pold(id_rm,:) = [];
         N = size(p,1);
         in = ((nC+1):N)'; % Vector of non-pfix indices
         
@@ -420,23 +405,7 @@ for k = 1:niter
         % Describe each bar by a unique pair of nodes
         bars = unique([t(:,[1,2]);t(:,[1,3]);t(:,[2,3])],'rows');
     end
-
-%         p(in,:) = projectBackToBoundary(phi,p(in,:));
-
-%     %----------------------------------------------------------------------
-%     % 2021-04-08 Younghun: Apply magnetic-like force
-%     %----------------------------------------------------------------------
-%     id = find(-phi.f(p) < hmin*2);
-%     temp = struct2table(PTS.Constraints);
-%     temp = temp.xy;
-%     temp = vertcat({[PTS.Poly.x,PTS.Poly.y]}, temp(:));
-%     
-%     [Vx,Vy,D] = Compute8SSED_v3(temp,p(id,1),p(id,2),hmin);
-%     id2 = abs(D) < hmin*0.4 & ~isnan(Vx) & ~isnan(Vy) & ~isinf(Vx) & ~isinf(Vy);
-%     p(id(id2),:) = p(id(id2),:) + [Vx(id2),Vy(id2)];
-    
-
-   
+       
     %------------------------------------------------------------------
     % 2021-04-15 Younghun: Perform triangulation once again because the updated
     % positions (p) possibly make elements crossing the constraints
@@ -502,67 +471,6 @@ ind = PointsInDomain3(mP(:,1),mP(:,2),PTS);
 ind = ind & phi.f(mP) < -geps;
 % Keep interior triangles
 T = sort(T(ind,:),2);
-        
-% %--------------------------------------------------------------------------
-% % 2021-04-13 Younghun: reject nodes near constraint lines
-% %--------------------------------------------------------------------------
-% id = find(-phi.f(P) < hmin*2);
-% temp = struct2table(PTS.Constraints);
-% temp = temp.xy;
-% % temp = vertcat({[PTS.Poly.x,PTS.Poly.y]}, temp(:));
-% 
-% [Vx,Vy,D] = Compute8SSED_v3(temp,P(id,1),P(id,2),hmin);
-% id2 = abs(D) > 0 & abs(D) < hmin*0.4 & ~isnan(Vx) & ~isnan(Vy) & ~isinf(Vx) & ~isinf(Vy);
-% P(id(id2),:) = [];
-
-% %--------------------------------------------------------------------------
-% % 2021-03-18 Younghun: Perform triangulation once again because the updated
-% % positions (p) possibly make elements crossing the constraints
-% %--------------------------------------------------------------------------
-% % [~,~,~,MESH] = GetMeshConstraints(p,hmin,PTS);
-% if isempty(C)
-%     dt = delaunayTriangulation(P);
-% else
-%     dt = delaunayTriangulation(P,C);
-%     % 2021-03-18 Younghun added below to fix a issue (not sure when it happens) by a temporary solution
-%     if ~isequal(P,dt.Points)
-%         warning([...
-%             'The routine ''delaunayTriangulation'' results more/less points.',...
-%             'As a temporal solution, modify the variable dt so that match to original p.']);
-% %         id_p = (~ismember(dt.Points,p,'rows'));
-% % %         dt.Points = P;
-%         P = dt.Points;
-%         C = dt.Constraints;
-%         % id = find(ismember(dt.ConnectivityList(:,1),find(id_p)));
-%         % I = ind2sub(size(dt.ConnectivityList),id);
-%         % dt.ConnectivityList(I,:) = [];
-%         
-%     end
-% end
-% % Compute centroids & Interpolate distances
-% ind = phi.f((P(dt(:,1),:)+P(dt(:,2),:)+P(dt(:,3),:))/3) < -geps;
-% 
-% % Keep interior triangles
-% T = sort(dt(ind,:),2);
-
-% %--------------------------------------------------------------------------
-% % 2021-04-12 Younghun: Apply magnetic force as a post-process
-% %--------------------------------------------------------------------------
-% id = find(-phi.f(p) < hmin);
-% temp = struct2table(PTS.Constraints);
-% temp = temp.xy;
-% temp = vertcat({[PTS.Poly.x,PTS.Poly.y]}, temp(:));
-% 
-% [~,~,D] = Compute8SSED_v3(temp,p(id,1),p(id,2),hmin);
-% id2 = D < 0 & abs(D) < hmin/2;
-% 
-% temp = cell2mat(temp);
-% [id2B,dist2B] = knnsearch(temp,p(id,:));
-% id2 = abs(D) < hmin/2 & dist2B < hmin;
-% % id2 = dist2B < hmin*0.5;
-% p1 = p;
-% p1(id(id2),:) = temp(id2B(id2),:);
-
 
 %--------------------------------------------------------------------------
 % Clean up 

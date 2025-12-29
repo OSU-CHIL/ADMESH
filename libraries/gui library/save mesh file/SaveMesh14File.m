@@ -304,10 +304,9 @@ fclose(fid);
 close(progdlg);
 figure(app.UIFigure); % Put focus on ADMESH app
 msg = 'Mesh file complete!';
-uiconfirm(app.UIFigure,msg,'ADMESH',...
+[~] = uiconfirm(app.UIFigure,msg,'ADMESH',...
         'Options',{'OK'},'DefaultOption',1,'Icon','info');
 
-pause(1);
 
 
 

@@ -77,13 +77,6 @@ for i = 1 : length(BranchList)
             end
         end
         
-%         %------------------------------------------------------------------
-%         % If there is only one possible path, it means 
-%         %------------------------------------------------------------------
-%         if length(PathBI) == 1
-%             continue;
-%         end
-        
         %------------------------------------------------------------------
         % Find paths with a loop
         %------------------------------------------------------------------
@@ -149,8 +142,6 @@ BranchNodes(BranchList) = mat2cell(BNE,ones(size(BNE,1),1));
 %--------------------------------------------------------------------------
 % Remove duplicate branches
 %--------------------------------------------------------------------------
-% [~,I] = unique(BranchNodeEnds,'rows');
-
 n = max(cellfun(@(x) length(x),BranchNodes));
 BranchNodes1 = cellfun(@(x) [reshape(x(:),1,length(x)), zeros(1,n - length(x))],BranchNodes,'UniformOutput',0);
 BranchNodes1 = vertcat(BranchNodes1{:});

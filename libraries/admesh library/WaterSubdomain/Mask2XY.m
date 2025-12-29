@@ -44,7 +44,6 @@ while 1
     if ~any(cellfun(@(x) all(ismember(x,MaskBoundary1,'rows')),BoundaryID))
         k = k + 1;
         BoundaryID{k} = MaskBoundary1;
-%         W2D_boundary{k} = sub2ind(size(W2D_bw_boundary),w2dbdry(:,1),w2dbdry(:,2));
     end
         
     %----------------------------------------------------------------------
@@ -57,21 +56,9 @@ while 1
         break;
     end
     
-%     IdRemove = find(ismember([I1,J1],w2dbdry,'rows'));
-%     I1(IdRemove) = [];
-%     J1(IdRemove) = [];
-    
-%     if isempty(I1)
-%         break;
-%     end
     progdlg.Value = (1 - length(I1)/NumBoundaryNodes);
 end
 clear W2D_bw_boundary;
-
-% figure; hold on;
-% for i = 1 : length(W2D_boundary)
-%     plot(W2D_boundary{i}(:,2),W2D_boundary{i}(:,1));
-% end
 
 %--------------------------------------------------------------------------
 % Remove boundary with only one vertex
