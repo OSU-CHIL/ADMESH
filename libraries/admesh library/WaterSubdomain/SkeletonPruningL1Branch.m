@@ -1,8 +1,12 @@
-function MA_pruned = SkeletonPruning_Choi_level1branch(Xq,Yq,Vx,Vy,D,MA,rho_pruning,dtheta)
+function MA_pruned = SkeletonPruningL1Branch(Vx,Vy,MA,rho_pruning,dtheta,dx,UIFigure)
+% Pruning L1 branches based on Choi et al. (2003)
+
 Debugging = 0;
 
 BranchNodes   = MA.BranchNodes;
-JointConnectivity = MA.JointConnectivity;
+BranchNodesAll = vertcat(BranchNodes{:});
+BranchNodeEnds = cellfun(@(x) [x(1) x(end)],BranchNodes,'UniformOutput',0);
+BranchNodeEnds = cell2mat(BranchNodeEnds(:));
 if isfield(MA,'PruningFlag')
     PruningFlag = MA.PruningFlag;
 end
@@ -11,16 +15,18 @@ end
 iBranch_pruned = [];
 ID_pruned = [];
 
-N = size(Xq,1);
-M = size(Xq,2);
-dx = mean(mean(diff(Xq,1,2)));
-dy = mean(mean(diff(Yq,1,1)));
+dy = dx;
+N = size(Vx,1);
+M = size(Vy,2);
+
+msg = 'Pruning medial axis branches...';
+progdlg = uiprogressdlg(UIFigure,'Title','ADMESH','Message',msg,'Indeterminate','on');
 
 while 1
     nBranch_pruned = 0;
     for i = 1 : length(BranchNodes)
-        num_nghb(1) = nnz(JointConnectivity == JointConnectivity(i,1));
-        num_nghb(2) = nnz(JointConnectivity == JointConnectivity(i,2));
+        num_nghb(1) = nnz(BranchNodeEnds == BranchNodeEnds(i,1));
+        num_nghb(2) = nnz(BranchNodeEnds == BranchNodeEnds(i,2));
         id_branch_tip = find(num_nghb == 1);
         
         if isfield(MA,'PruningFlag') && PruningFlag(i) == 0
@@ -30,28 +36,42 @@ while 1
         if isempty(id_branch_tip) % Keep all points if it's not a level-1 branch
             id_new = BranchNodes{i};
 %             XY_new = XY{i};
-        elseif length(id_branch_tip) > 1 % Remove disconnected branches
-            id_new = [];
-        elseif length(id_branch_tip) == 1
+%         elseif length(id_branch_tip) > 1 % disconnected branches
+% %             id_new = []; % Remove disconnected branches
+%             id_new = BranchNodes{i}; % keep all nodes
+%             if length(id_new)*dx < 1*rho_pruning % Remove very short branch
+%                 id_new = [];
+%             end
+        elseif length(id_branch_tip) >= 1
             id_new = BranchNodes{i};
 %             XY_new = XY{i};
             
             k = id_new;
-            [I,J] = ind2sub(size(Xq),k);
-            k(I == 1 | I == size(Xq,1) | J == 1 | J == size(Xq,2)) = [];
+            [I,J] = ind2sub([N,M],k);
             
             k_nghb = k + [-N-1, -N, -N+1, -1, 1, N-1, N, N+1];
+            K1 = find(k_nghb < 1 | k_nghb > numel(Vx));
+            [I1,J1] = ind2sub(size(k_nghb),K1);
+            k_nghb(K1) = k(I1);
+            
+            [I_nghb,J_nghb] = ind2sub([N,M],k_nghb);
             
             Dsq = (Vx(k_nghb) - Vx(k)).^2 + (Vy(k_nghb) - Vy(k)).^2;
             Qi_norm = Vx(k_nghb).^2 + Vy(k_nghb).^2;
             Q_norm = Vx(k).^2 + Vy(k).^2;
             
-            ConnectivityTest = (Qi_norm - Q_norm) ./ max(Xq(k) - Xq(k_nghb),Yq(k)-Yq(k_nghb));
+            ConnectivityTest = (Qi_norm - Q_norm) ./ (dx*max(J - J_nghb,I - I_nghb));
             
             COSINE = (Vx(k_nghb).*Vx(k) + Vy(k_nghb).*Vy(k))...
                 ./(sqrt(Vx(k_nghb).^2 + Vy(k_nghb).^2) .* sqrt(Vx(k).^2 + Vy(k).^2));
             COSINE(isnan(COSINE)) = 1;
             theta = acos(COSINE);
+            
+            I = BranchNodesAll >= min(k_nghb(:)) & BranchNodesAll <= max(k_nghb(:));
+            temp = BranchNodesAll(I);
+            I = ismember(k_nghb,temp);
+            Dsq(I) = 0;
+            theta(I) = 0;
             
             if length(k) == 1
                 max_Dsq = max(Dsq);
@@ -69,7 +89,7 @@ while 1
             %----------------------------------------------------------------------
             % Prune if skeleton points are too close to boundary
             %----------------------------------------------------------------------
-            id_boundary = abs(D(k)) < sqrt(dx^2 + dy^2) | max_theta < 1e-8;
+            id_boundary = abs(sqrt(Vx(k).^2 + Vy(k).^2)) < sqrt(dx^2 + dy^2) | max_theta < 1e-8;
             id_remove = id_remove | id_boundary;
             
             if id_branch_tip == 1
@@ -96,11 +116,13 @@ while 1
     if isequal(BranchNodes,ID_pruned) && isempty(iBranch_pruned)
         break;
     end
+    progdlg.Indeterminate = 'off';
+    progdlg.Value = length(ID_pruned)/length(BranchNodes);
     BranchNodes = ID_pruned;
     ID_pruned = [];
 %     XY = XY_pruned;
 %     XY_pruned = [];
-    JointConnectivity(iBranch_pruned,:) = [];
+    BranchNodeEnds(iBranch_pruned,:) = [];
     if isfield(MA,'PruningFlag') 
         PruningFlag(iBranch_pruned) = [];
     end
@@ -108,10 +130,8 @@ while 1
     iBranch_pruned = [];
 end
 
-MA_pruned.nBranch = nBranch_pruned;
 MA_pruned.Size = MA.Size;
 MA_pruned.BranchNodes = BranchNodes;
-MA_pruned.JointConnectivity = JointConnectivity;
 % MA_pruned.XY = XY;
 
 if Debugging == 1

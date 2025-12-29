@@ -69,12 +69,6 @@ if length(p1) < 3
     return;
 end
 if SmoothingRMSE >= 0
-%     t = 1 : length(x);
-%     Smooth_x = fit(t(:),x(:),'smoothingspline','SmoothingParam',Setting.SmoothingParam);
-%     Smooth_y = fit(t(:),y(:),'smoothingspline','SmoothingParam',Setting.SmoothingParam);
-%     x = Smooth_x(t);
-%     y = Smooth_y(t);
-    
     %---enforce fixed points
     t = 1 : length(x0);
     w = ones(length(x0),1);

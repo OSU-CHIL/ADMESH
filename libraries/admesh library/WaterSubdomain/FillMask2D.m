@@ -72,7 +72,7 @@ for iMask = 1 : nMask
     end
     x1 = xg(BranchNodes{iMask}(:,2));
     y1 = yg(BranchNodes{iMask}(:,1));
-    [~,~,D] = Compute8SSED_v3(XY_b,x1,y1,dx);
+    [~,~,D] = Compute8SSED(XY_b,x1,y1,dx);
     
     [I,J] = find(Mask1DCell{iMask});
     

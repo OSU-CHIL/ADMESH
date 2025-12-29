@@ -9,10 +9,7 @@ if isfield(MA,'BranchXY')
 end
 if ~exist('FlagPreserve','var')
     FlagPreserve = false(length(BranchNodes),1);
-else
-%     FlagPreserve = FlagPreserve >= 2;
 end
-% MinChannelLength = 2/(DEG2KM*1e3);
 
 while 1
     

@@ -39,10 +39,8 @@ ConvCriteria = zeros(MaxIter,1);
 p = pInit;
 P{1} = p;
 nIter = 0;
-% wbar = waitbar(0);
-% fwbar = @(x,y) waitbar(x/y,wbar,sprintf('Force equilibrium 1D... (%.2f)',x/y));
+
 while 1
-%     nIter = nIter + 1;
     pMid = (p(2:end) + p(1:end-1))/2;
     pMid = pMid(:);
     
@@ -54,8 +52,6 @@ while 1
     
     p1 = p(1:end-1);
     p2 = p(2:end);
-%     hMid = mean(fh(p1*W1 + p2*W2),2);
-%     hMid = max(h(p1*W1 + p2*W2),[],2);
     hMid = fh((p1+p2)/2);
 %     hMid = .5*mean(h(p1*W1 + p2*W2),2) + .5*h((p1+p2)/2);
 
@@ -65,15 +61,11 @@ while 1
     L_now = p(2:end) - p(1:end-1);
     
     L_desired = hMid.*Fscale.*sqrt(sum(L_now.^2)/sum(hMid.^2));
-%     L_desired = hMid;
-%     L_desired(L_desired < h_min) = h_min;
-%     L_desired(L_desired > h_max) = h_max;
     
     %----------------------------------------------------------------------
     % Compute forces on each element
     %----------------------------------------------------------------------
     F = max(L_desired - L_now,0);
-%     F = L_desired - L_now;
     Ftot = [0; F(1:end-1) - F(2:end); 0];
     
     %----------------------------------------------------------------------
@@ -81,11 +73,6 @@ while 1
     %----------------------------------------------------------------------
     idfixed = (ismember(p,fixedPoints));
     Ftot(idfixed) = 0;
-%     if all(Ftot == 0)
-%         n10 = round(length(p)/10);
-%         p = [p(:); xEnd*rand(n10,1)];
-%         continue;
-%     end
 
     %----------------------------------------------------------------------
     % Update points locations
@@ -130,17 +117,9 @@ while 1
             'Mesh points with the least movement is chosen as output.']);
         break;
     end
-%      if ConvTol/ConvCriteria(nIter) > nIter/MaxIter
-%          fwbar(ConvTol,ConvCriteria(nIter));
-%      else
-%          fwbar(nIter,MaxIter);
-%      end
-    
 end
-% delete(wbar);
 
 P(nIter+2 : MaxIter) = [];
 ConvCriteria(nIter+1 : MaxIter) = [];
-
 
 end

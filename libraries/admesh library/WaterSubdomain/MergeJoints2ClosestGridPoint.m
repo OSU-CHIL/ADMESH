@@ -35,14 +35,6 @@ for i = 1 : length(ID)
             k_joint_connection_old = k_joint_connection;
         end
         
-        % Remove duplicated joints if it's already connected to some branch
-%         for ii = 1 : length(k_joint_connection)
-%             if nnz(ismember(Conn,k_joint_connection(ii))) > 1
-%                 k_joint_connection(ii) = 0;
-%             end
-%         end
-%         k_joint_connection = nonzeros(k_joint_connection);
-        
         if isempty(k_joint_connection)
             continue;
         end
@@ -53,8 +45,6 @@ for i = 1 : length(ID)
         
         [~,id_closest] = min(dist);
         id_closest = k_joint_connection(id_closest);
-        
-%         id_closest = sub2ind([N,M],round(mI),round(mJ)); % choose nearest grid point even if it is NOT a joint
         
         nDupJoints = nDupJoints + 1;
         DupJoints.ID_conn{nDupJoints} = k_joint_connection;
@@ -91,8 +81,6 @@ for i = 1 : nDupJoints
                 end
                 
                 num_add = num_add+1;
-%                 I_add(nadd) = II + sign(I - II);
-%                 J_add(nadd) = JJ + sign(J - JJ);
                 
                 if II < I
                     I_add(num_add) = II + 1;
@@ -136,8 +124,6 @@ for i = 1 : length(MA_new.ID)
     MA_new.ID{i} = unique(MA_new.ID{i},'stable');
 end
 
-
-% Check duplicated branches
 
 
 

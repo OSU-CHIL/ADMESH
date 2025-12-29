@@ -71,8 +71,6 @@ for iDD = 1 : size(dd_ID,1)
         PTS.Poly(i).x = XY_b1{i}(:,1);
         PTS.Poly(i).y = XY_b1{i}(:,2);
     end
-    % [D,gradD] = SignedDistanceFunction_v2(PTS,X,Y,delta,hmax);
-    % % D = round(D,16);
     
     IN = PointsInDomain3(X,Y,PTS);
     IN = ~IN; % Flip since it is closed by land boundary (nghbbox)
@@ -83,19 +81,9 @@ for iDD = 1 : size(dd_ID,1)
     %--------------------------------------------------------------------------
     % Compute 8SSED map
     %--------------------------------------------------------------------------
-    % [Vx,Vy] = Compute8SSED(X,Y,x_b,y_b,delta);
-    [Vxloc,Vyloc] = Compute8SSED_v3(XY_b1,X,Y,delta);
-    % [Vx,Vy,D] = Compute8SSED_v4(ipgon,X,Y,delta);
-%     Vx(~IN) = 0; Vy(~IN) = 0;
+    [Vxloc,Vyloc] = Compute8SSED(XY_b1,X,Y,delta);
     Vmloc = sqrt(Vxloc.^2 + Vyloc.^2);
     
-%     Dloc(IN) = -Dloc(IN);
-%     Dg1 = full(D(dd_ID{iDD,1},dd_ID{iDD,2}));
-%     I = abs(Dg1) == 0 | abs(Dg1) > abs(Dloc); % negative values for outside domain
-% %     I = D < Dg1; % ignore outside domain
-%     Dg1(I) = Dloc(I);
-    
-%     D(dd_ID{iDD,1},dd_ID{iDD,2}) = Dg1;
     Vx1 = full(Vx(dd_ID{iDD,1},dd_ID{iDD,2}));
     Vy1 = full(Vy(dd_ID{iDD,1},dd_ID{iDD,2}));
     Vm1 = sqrt( Vx1.^2 + Vy1.^2);
@@ -110,7 +98,6 @@ for iDD = 1 : size(dd_ID,1)
     Mask1(dd_ID{iDD,1},dd_ID{iDD,2}) = IN;
     Mask2(dd_ID{iDD,1},dd_ID{iDD,2}) = ~IN;
     
-%     clear D Dg1 Vx Vy Vxg1 Vyg1 Vmag Vmag1 X Y;
     progdlg.Indeterminate = 'off';
     progdlg.Value = iDD/size(dd_ID,1);
 end

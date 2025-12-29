@@ -67,10 +67,6 @@ if ~isempty(app.PTS) && ~isempty(obj2)
     
     app.MESH               = []; % Mesh data
     
-    % guidata(fig,gui)
-    
-    PlotEdgeStructure(app,.1);
-    
     return
 end
 

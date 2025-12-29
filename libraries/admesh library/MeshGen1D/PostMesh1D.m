@@ -216,7 +216,7 @@ for i = 1 : length(Mesh1D)
     y = Mesh1D(i).Y;
     K = Mesh1D(i).K;
 
-    [~,~,dist] = Compute8SSED_v3(C3XY,x,y,dx);
+    [~,~,dist] = Compute8SSED(C3XY,x,y,dx);
 
     while 1
         Mesh1Dcopy = Mesh1D;

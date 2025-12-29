@@ -60,37 +60,10 @@ y = xyzFun.GridVectors{2};
 [X,Y] = ndgrid(x,y);
 Z = xyzFun.Values;
 
-% Visualize
-% figure; hold on;
-% x = xyzFun.GridVectors{1};
-% y = xyzFun.GridVectors{2};
-% [X,Y] = ndgrid(x,y);
-% Z = xyzFun.Values;
-% 
-% surf(X,Y,BasinID,'edgecolor','none'); view(2);
-% % plot3(BP(:,1),BP(:,2),1e5*ones(size(BP(:,2))),'k','linewidth',2);
-% plot3(FL2(:,1),FL2(:,2),nBasins*ones(size(FL2(:,1))),'b','linewidth',2);
-% axis equal tight;
-% colormap('turbo');
-% colorbar;
-% 
-% label_x = zeros(nBasins,1);
-% label_y = zeros(nBasins,1);
-% label_text = split(num2str(1:nBasins));
-% for i = 1 : nBasins
-%     label_x(i) = mean(X(BasinID == i));
-%     label_y(i) = mean(Y(BasinID == i));
-% end
-% 
-% text(label_x,label_y,nBasins*ones(size(label_x)),label_text);
-
 %%
 
 Znew = NaN(size(Z));
 
-% nConnectingLines = 10;
-
-tic;
 for iBasin = 1 : nBasins
     %% Find subbasin boundary and corresponding channel
     K = find(BasinID == iBasin);
@@ -148,7 +121,7 @@ for iBasin = 1 : nBasins
     % Set channel points
     Cx = x1(I);
     Cy = y1(I);
-    Cz = -xyzFun(Cx,Cy);
+    Cz = xyzFun(Cx,Cy);
     
     % Find subbasin boundary point closest to the end of channel
     iStart = knnsearch([Bx,By],[Cx(end),Cy(end)]);
@@ -158,7 +131,7 @@ for iBasin = 1 : nBasins
         Bx = Bx([iStart:end,1:iStart-1]);
         By = By([iStart:end,1:iStart-1]);
     end
-    Bz = -xyzFun(Bx,By);
+    Bz = xyzFun(Bx,By);
 
     %% Method 3: use triangulation
     %----------------------------------------------------------------------
@@ -173,16 +146,6 @@ for iBasin = 1 : nBasins
     P1 = unique(P1,'rows','stable');
     P2 = unique(P2,'rows','stable');
     P = [P1; P2];
-    %----------------------------------------------------------------------
-    % Check duplicated points
-    %----------------------------------------------------------------------
-%     P = unique(P,'rows','stable');
-% 
-%     I = ismember(P1,P,'rows');
-%     P1 = P1(I,:);
-% 
-%     I = ismember(P2,P,'rows');
-%     P2 = P2(I,:);
 
     %----------------------------------------------------------------------
     % Construct triangulation
@@ -191,21 +154,10 @@ for iBasin = 1 : nBasins
     x1 = P(:,1);
     y1 = P(:,2);
 
-%     figure; triplot(TRI);
-
     %----------------------------------------------------------------------
     % Retrieve connectivity list
     %----------------------------------------------------------------------
     T = TRI.ConnectivityList;
-
-%     % Reset points
-%     P = TRI.Points;
-%     
-%     I = ismember(P,P1,'rows');
-%     P1 = P(I,:);
-% 
-%     I = ismember(P,P2,'rows');
-%     P2 = P(I,:);
 
     %----------------------------------------------------------------------
     % Remove triangulation out of subbasin (half side)
@@ -216,8 +168,6 @@ for iBasin = 1 : nBasins
     [inS,onS] = inpolygon(mx,my,P1(:,1),P1(:,2));
     I = ~inS & ~onS;
     T(I,:) = [];
-
-%     figure; triplot(T,P(:,1),P(:,2),'k'); axis equal tight;
 
     %----------------------------------------------------------------------
     % Find elements containing one boundary node and one channel node
@@ -241,8 +191,6 @@ for iBasin = 1 : nBasins
     T(I,:) = [];
     I1(:,I) = [];
     I2(:,I) = [];
-
-%     hold on; triplot(T,P(:,1),P(:,2),'b'); axis equal tight;
 
     %----------------------------------------------------------------------
     % Find edges connecting channel and boundary
@@ -273,37 +221,9 @@ for iBasin = 1 : nBasins
     C1 = sort(C1,2);
     C1 = unique(C1,'rows');
 
-%     TRI = delaunayTriangulation([Bx1, By1; Cx, Cy],C);
-%     figure; triplot(TRI); hold on; line(P(C1',1),P(C1',2));
-
-    %----------------------------------------------------------------------
-    % Visualize
-    %----------------------------------------------------------------------
-%     figure; hold on;
-%     triplot(TRI,'color',[1 1 1]*.7);
-%     line(x1(C1'),y1(C1'),'color','k');
-%     plot(P1(:,1),P1(:,2),'r','Linewidth',2);
-%     plot(P2(:,1),P2(:,2),'b','linewidth',2);
-%     axis equal tight;
-% 
-%     figure; hold on;
-% %     triplot(T,P(:,1),P(:,2),'b');
-%     line(x1(C1'),y1(C1'),'color','b');
-%     plot(P1(:,1),P1(:,2),'k','Linewidth',2);
-%     plot(P2(:,1),P2(:,2),'r','linewidth',2);
-%     axis equal tight;
-
-
-%     I = ismember(P1,P(C(:,1),:),'rows');
-% 
-%     temp = P(C(:,1),:);
-%     P11 = P1;
-%     P11(I,:) = [];
-
     %----------------------------------------------------------------------
     % Fill missing connections
     %----------------------------------------------------------------------
-%     tic;
     C2 = [];
     for i = 1 : size(P1,1)
         if ~any(ismember(C1(:,1),i))
@@ -336,11 +256,6 @@ for iBasin = 1 : nBasins
                 continue;
             end
 
-%             [xi,yi] = polyxpoly(x1([i,j]),y1([i,j]),P2(:,1),P2(:,2));
-%             if length(xi) > 1
-%                 continue;
-%             end
-
             C2(end+1,:) = [i, j];
 
         end
@@ -360,11 +275,6 @@ for iBasin = 1 : nBasins
             J = n1 : n2;
             for j = n1:n2
                 % Check intersection with boundary and channel
-%                 [xi,yi] = polyxpoly(x1([i,j]),y1([i,j]),P1(:,1),P1(:,2));
-%                 if length(xi) > 1
-%                     continue;
-%                 end
-
                 [xi,yi] = polyxpoly(x1([i,j]),y1([i,j]),P2(:,1),P2(:,2));
                 if length(xi) > 1
                     continue;
@@ -378,7 +288,6 @@ for iBasin = 1 : nBasins
 
         end
     end
-%     toc;
 
     %----------------------------------------------------------------------
     % Set global constraint
@@ -388,17 +297,6 @@ for iBasin = 1 : nBasins
     C(:,2) = -1*C(:,2);
     C = unique(C,'rows');
     C(:,2) = -1*C(:,2);
-
-    %----------------------------------------------------------------------
-    % Visualize
-    %----------------------------------------------------------------------
-%     figure; hold on;
-%     line(x1(C2'),y1(C2'),'color',[1 1 1]*0.7);
-%     line(x1(C3'),y1(C3'),'color',[1 1 1]*0.7);
-%     line(x1(C1'),y1(C1'),'color',[1 1 1]*0.0);
-%     plot(P1(:,1),P1(:,2),'r','Linewidth',2);
-%     plot(P2(:,1),P2(:,2),'b','linewidth',2);
-%     axis equal tight;
 
     %% ----------------------------------------------------------------------
     % Smooth topography along connection line
@@ -410,7 +308,6 @@ for iBasin = 1 : nBasins
     else
         IC = linspace(1,size(C,1),nConnectingLines+1);
         IC = IC(1:end-1);
-%         IC = linspace(1,size(C,1),nConnectingLines);
         IC = round(IC);
     end
     
@@ -425,7 +322,7 @@ for iBasin = 1 : nBasins
         
         % Retreive cross-section topography
         r2 = sqrt( (x2 - x2(1)).^2 + (y2 - y2(1)).^2);
-        z2 = -xyzFun(x2',y2');
+        z2 = -xyzFun(x2',y2'); % Convert bathymetry to topography
         z2 = z2';
         
         %------------------------------------------------------------------
@@ -440,13 +337,13 @@ for iBasin = 1 : nBasins
         SP2 = 1;
         
         while 1
-            % Keep raw DEM if boundary is lower than channel (not sure
-            % why/when it happens)
+            % Keep raw DEM if boundary is lower than channel (not sure why/when it happens)
             if z2(1) <= z2(end)
                 z3 = z2;
                 break;
             end
             
+            % Check if SP1 and SP2 are almost the same
             if SP2 - SP1 < 1e-16
                 if strcmpi(WARN,'on')
                     warning(['Iteration cannot reach to the stopping criterion. ',...
@@ -454,11 +351,11 @@ for iBasin = 1 : nBasins
                 end
                 break;
             end
-            SmoothingParam = (SP1 + SP2)/2;
 
+            % Apply csaps
+            SmoothingParam = (SP1 + SP2)/2;
             z3_new = csaps(r2,z2,SmoothingParam,r2,w);
             z3_new([1 end]) = z2([1 end]);
-
 
             % Stop if a monotone decreasing curve is obtained
             if max(diff(z3_new)) > 0
@@ -479,7 +376,7 @@ for iBasin = 1 : nBasins
         %------------------------------------------------------------------
         DataSets{i}.x = x2;
         DataSets{i}.y = y2;
-        DataSets{i}.z = z3;
+        DataSets{i}.z = -z3; % Convert topography to bathymetry
     end
 
     % Remove empty sets
@@ -511,43 +408,16 @@ for iBasin = 1 : nBasins
 
     % Assign new elevation data within basin mask
     Znew(BasinMask) = Znew1(BasinMask);
-
-
-    % Visualize
-%     figure;
-%     for i = 1 : length(PIs)
-%         subplot(1,2,1); hold off;
-%         plot(P1(:,1),P1(:,2),'k','Linewidth',2);
-%         hold on;
-%         plot(P2(:,1),P2(:,2),'r','linewidth',2);
-%         plot(DataSets{i}.x,DataSets{i}.y,'b');
-%         axis equal tight;
-% 
-%         subplot(1,2,2); hold off
-%         PI = PIs{i};
-%         plot(PI.x1(PI.p),PI.y1(PI.p));
-%         hold on;
-%         plot(PI.sx(PI.p),PI.sy(PI.p));
-% 
-%         drawnow;
-%     end
-% 
-%     figure; hold on;
-%     plot(P1(:,1),P1(:,2),'k','Linewidth',2);
-%     plot(P2(:,1),P2(:,2),'r','linewidth',2);
-%     scatter3(x1,y1,z1,1,z1,'filled');
-%     axis equal tight;
-
-
-    
 end
 
-Znew = -Znew;
+% Assign raw DEM values for out of basin
 Znew(isnan(Znew)) = Z(isnan(Znew));
 
+% Store to app
 app.xyzFun_new = app.xyzFun;
 app.xyzFun_new.Values = Znew;
 app.DEMDropDown.Enable = 'on';
 app.SaveR2D2DEMButton.Enable = 'on';
 
+% Visualize result
 PlotR2D2Result(app);

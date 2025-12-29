@@ -60,22 +60,7 @@ while 1
         
         BranchNodes{i} = [];
         BranchNodeEnds(i,:) = 0;
-        
-        
-%         if length(I) == 2
-%             J = J(~(I == i));
-%             I = I(~(I == i));
-%             
-%             if J == 1
-%                 JointConnectivity(i,:) = [JointConnectivity(i,1),JointConnectivity(I,2)];
-%                 BranchNodes{i} = [BranchNodes{i}; BranchNodes{I}];
-%                 BranchNodes{I} = [];
-%             else
-%                 JointConnectivity(i,:) = [JointConnectivity(i,1),JointConnectivity(I,1)];
-%                 BranchNodes{i} = [BranchNodes{i}; flip(BranchNodes{I})];
-%                 BranchNodes{I} = [];
-%             end
-%         end
+
     end
     id = cellfun(@(x) isempty(x),BranchNodes);
     if nnz(id) == 0

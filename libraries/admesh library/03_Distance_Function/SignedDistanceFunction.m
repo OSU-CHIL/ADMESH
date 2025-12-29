@@ -118,7 +118,7 @@ else
     XYb2 = XYb2.xy;
 end
 % [~,~,D] = VectorDistanceTransform([XYq1;XYq2],[X(:),Y(:)]);
-[~,~,D] = Compute8SSED_v3([XYb1;XYb2],X(:),Y(:),delta);
+[~,~,D] = Compute8SSED([XYb1;XYb2],X(:),Y(:),delta);
 
 D = reshape(D,size(X));
 D(IN) = -D(IN);
