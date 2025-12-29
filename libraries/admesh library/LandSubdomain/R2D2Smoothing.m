@@ -39,6 +39,9 @@ L = drainagebasins(FD,basinXY(:,1),basinXY(:,2));
 
 % Set BasinID array (need check)
 BasinID = double(fliplr(L.Z'));
+if nnz(BasinID) == 0
+    error('No basins found with "drainagebasins" function.');
+end
 BasinID(BasinID == 0) = NaN;
 
 % Check number of basins
@@ -81,11 +84,10 @@ for iBasin = 1 : nBasins
     B = B(I);
     % check boundary
     if length(B) ~= 1
-        error('Multiple subbasin boundaries are extracted.');
-        figure; hold on;
-        for j = 1 : length(B)
-            plot(B{j}(:,1),B{j}(:,2));
-        end
+        warning('Multiple subbasin boundaries are extracted. The longest boundary segement is used. It may result poor smoothing.');
+        I = cellfun(@(x) length(x),B);
+        [~,I] = max(I);
+        B = B(I);
     end
     B = B{1};
 
@@ -241,12 +243,14 @@ for iBasin = 1 : nBasins
             II2 = find(C1(:,1) == n2);
 
             if isempty(II1) || isempty(II2)
-                error('Error in filling missing R2C lines.');
+                warning('Error in filling missing R2C lines.');
+                continue;
             end
 
             j = intersect(C1(II1,2),C1(II2,2));
             if isempty(j)
-                error('Error in finding common node of R2C lines.');
+                warning('Error in finding common node of R2C lines.');
+                continue;
             end
 
             % Check intersection with boundary and channel
