@@ -269,7 +269,7 @@ if any(strcmpi(ext,{'.tiff','.tif'}))
     Z = imread([path,file]);
     Z = double(Z);
     Z = flipud(Z);
-    Z(Z == -999999) = nan;
+    Z(Z <= -9999) = nan;
     gtinfo = geotiffinfo([path,file]);
     
     ax = gtinfo.BoundingBox;
