@@ -21,7 +21,7 @@ if ~strcmpi(status,'off')
 
         h1 = findobj(app.UIAxes,'tag','Edge Structure');
 
-        if ~isempty(h1) && isempty(app.xyzFun)
+        if isempty(app.xyzFun)
             msg = 'No vertical elevation data are identified.';
             uiconfirm(app.UIFigure,msg,'ADMESH',...
                 'Options',{'OK'},'DefaultOption',1,'Icon','Error');

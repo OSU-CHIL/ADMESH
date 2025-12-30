@@ -80,6 +80,13 @@ switch ext
             PlotEdgeStructure(app,.1);
         end
 
+        % Plot bathy/topo if it is loaded
+        if isempty(app.xyzFun)
+            SetContourStatus(app,'Off');
+        else
+            SetContourStatus(app,'Bathy/Topo');
+        end
+
     case {'.14','.grd'}
         
         % Reset domain variables

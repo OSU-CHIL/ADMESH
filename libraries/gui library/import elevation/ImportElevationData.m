@@ -38,9 +38,10 @@ PTS = app.PTS; xyzFun = app.xyzFun;
 %--------------------------------------------------------------------------
 if isempty(PTS)
     
-%     warndlg('You must first load an edge structure file (.mat or .14) file.'...
-%         ,'Error');
-%     return
+    msg = 'You must first load an edge structure file (.shp, .mat, or .14) file.';
+    [~] = uiconfirm(app.UIFigure,msg,'ADMESH',...
+        'Options',{'OK'},'DefaultOption',1,'Icon','Error');
+    return
     
 end
 
