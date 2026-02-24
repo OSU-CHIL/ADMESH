@@ -23,12 +23,12 @@ for i = 1 : length(c_files)
     folder = c_files(i).folder;
     name = c_files(i).name;
 
-    foldername = [folder,'/',name];
-    foldername_mex = strrep(foldername,'.c',extension);
+    filename = [folder,'/',name];
+    filename_mex = strrep(filename,'.c',extension);
     
-    if ~exist(foldername_mex,'file')
+    if ~exist(filename_mex,'file')
         cd(folder);
-        mex(foldername);
+        mex(filename);
     end
 end
 
