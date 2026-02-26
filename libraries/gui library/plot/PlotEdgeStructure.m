@@ -111,20 +111,20 @@ end
 % Define a context menu
 %------------------------------------------------------------------------------
 
-% Define the context menu items and install their callbacks for external boundary
-hcmenu = uicontextmenu(app.UIFigure); % Create user interface context menu
-uimenu(hcmenu,'Label','Assign Open Ocean Boundary Condition','MenuSelectedFcn',@(menu,action)AssignBC(app,menu,action));
-% m1 = uimenu(hcmenu,'Text','Assign Open Ocean Boundary Condition','MenuSelectedFcn',@(mn) AssignBC(app,mn));
-set(gH(1),'ContextMenu',hcmenu)
-
-% Define the context menu items and install their callbacks for internal boundaries
-hcmenu = uicontextmenu(app.UIFigure); % Create user interface context menu
-%uimenu(hcmenu,'Label','Assign BC'       ,'Callback',@AssignBC);
-uimenu(hcmenu,'Label','Delete Polygon'  ,'Callback',@DeletePolygon);
-
-for k = 2:length(gH)
-    set(gH(k),'uicontextmenu',hcmenu)
-end
+% % Define the context menu items and install their callbacks for external boundary
+% hcmenu = uicontextmenu(app.UIFigure); % Create user interface context menu
+% uimenu(hcmenu,'Label','Assign Open Ocean Boundary Condition','MenuSelectedFcn',@(menu,action)AssignBC(app,menu,action));
+% % m1 = uimenu(hcmenu,'Text','Assign Open Ocean Boundary Condition','MenuSelectedFcn',@(mn) AssignBC(app,mn));
+% set(gH(1),'ContextMenu',hcmenu)
+% 
+% % Define the context menu items and install their callbacks for internal boundaries
+% hcmenu = uicontextmenu(app.UIFigure); % Create user interface context menu
+% %uimenu(hcmenu,'Label','Assign BC'       ,'Callback',@AssignBC);
+% uimenu(hcmenu,'Label','Delete Polygon'  ,'Callback',@DeletePolygon);
+% 
+% for k = 2:length(gH)
+%     set(gH(k),'uicontextmenu',hcmenu)
+% end
 
 %------------------------------------------------------------------------------
 % Plot constraints
