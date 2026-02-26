@@ -243,13 +243,13 @@ for iBasin = 1 : nBasins
             II2 = find(C1(:,1) == n2);
 
             if isempty(II1) || isempty(II2)
-                warning('Error in filling missing R2C lines.');
+                warning('Error in filling missing R2-D2 lines.');
                 continue;
             end
 
             j = intersect(C1(II1,2),C1(II2,2));
             if isempty(j)
-                warning('Error in finding common node of R2C lines.');
+                warning('Error in finding common node of R2-D2 lines.');
                 continue;
             end
 
